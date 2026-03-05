@@ -1,57 +1,70 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ShoppingBag } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
+import { Link } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
-    const { addToCart } = useCart();
-    const { id, name, price, category, image1, image2 } = product;
+    const [isHovered, setIsHovered] = useState(false);
 
-    // Fallback image in case of load error
-    const fallbackImage = "https://images.unsplash.com/photo-1560243563-062bfc001d68?auto=format&fit=crop&q=80&w=800";
+    const formatPrice = (price) => {
+        return typeof price === 'number' ? price.toFixed(2) : price;
+    };
 
-    const [img1Src, setImg1Src] = useState(image1);
-    const [img2Src, setImg2Src] = useState(image2);
+    const resolveImageUrl = (url) => {
+        if (!url) return '';
+        return url.startsWith('http') ? url : `http://localhost:8080${url}`;
+    };
+
+    const mainImage = resolveImageUrl(product.image_url);
+    const hoverImage = resolveImageUrl(product.image2_url) || mainImage;
 
     return (
-        <div className="group relative">
-            <Link
-                to={`/product/${id}`}
-                className="block relative overflow-hidden aspect-[3/4] bg-gray-200"
-            >
-                {/* Image 1 (Default) */}
-                <img
-                    src={img1Src}
-                    alt={name}
-                    loading="lazy"
-                    onError={() => setImg1Src(fallbackImage)}
-                    className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 opacity-100 group-hover:opacity-0"
-                />
-                {/* Image 2 (Hover) */}
-                <img
-                    src={img2Src}
-                    alt={`${name} hover`}
-                    loading="lazy"
-                    onError={() => setImg2Src(fallbackImage)}
-                    className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-                />
+        <div
+            className="group cursor-pointer flex flex-col h-full"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <div className="relative aspect-[3/4] mb-4 overflow-hidden bg-gray-100">
+                <Link to={`/product/${product.id}`} className="block w-full h-full">
+                    <img
+                        src={mainImage}
+                        alt={product.name}
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${isHovered && product.image2_url ? 'opacity-0' : 'opacity-100'}`}
+                    />
+                    <img
+                        src={hoverImage}
+                        alt={`${product.name} alternative`}
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${isHovered && product.image2_url ? 'opacity-100' : 'opacity-0'}`}
+                    />
+                </Link>
 
-                {/* Quick Add Button (Visible on Hover) */}
-                <button
-                    onClick={(e) => {
-                        e.preventDefault();
-                        addToCart({ ...product, size: 'M' }); // Default size for quick add
-                    }}
-                    className="absolute bottom-4 right-4 bg-white p-3 rounded-full shadow-lg translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black hover:text-white"
-                >
-                    <ShoppingBag className="w-5 h-5" />
-                </button>
-            </Link>
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <button className="bg-white p-2 rounded-full shadow-md hover:bg-black hover:text-white transition-colors duration-300">
+                        <ShoppingBag size={18} />
+                    </button>
+                </div>
 
-            <div className="mt-4 text-center">
-                <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">{category}</p>
-                <h3 className="text-lg font-medium font-body truncate">{name}</h3>
-                <p className="text-sm font-bold mt-1">${price.toFixed(2)}</p>
+                {product.stock <= 5 && product.stock > 0 && (
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">
+                        Pocas unidades
+                    </div>
+                )}
+
+                {product.stock === 0 && (
+                    <div className="absolute top-2 left-2 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">
+                        Agotado
+                    </div>
+                )}
+            </div>
+
+            <div className="flex flex-col flex-grow text-center">
+                <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider">{product.category}</p>
+                <h3 className="text-sm font-semibold mb-1 uppercase tracking-wide leading-tight group-hover:underline">
+                    <Link to={`/product/${product.id}`}>{product.name}</Link>
+                </h3>
+                <p className="text-sm text-gray-900 font-bold mt-auto tracking-widest">${formatPrice(product.price)}</p>
+                {product.colors && (
+                    <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">{product.colors.split(',').length} Colores</p>
+                )}
             </div>
         </div>
     );
