@@ -14,8 +14,16 @@ const ProductCard = ({ product }) => {
         return url.startsWith('http') ? url : `http://localhost:8080${url}`;
     };
 
-    const mainImage = resolveImageUrl(product.image_url);
-    const hoverImage = resolveImageUrl(product.image2_url) || mainImage;
+    let parsedImages = [];
+    try {
+        parsedImages = JSON.parse(product.images || '[]');
+    } catch (e) { }
+
+    const totalStock = product.variants ? product.variants.reduce((acc, curr) => acc + curr.stock, 0) : 0;
+    const uniqueColors = product.variants ? [...new Set(product.variants.map(v => v.color))].length : 0;
+
+    const mainImage = parsedImages.length > 0 ? resolveImageUrl(parsedImages[0]) : '';
+    const hoverImage = parsedImages.length > 1 ? resolveImageUrl(parsedImages[1]) : mainImage;
 
     return (
         <div
@@ -25,16 +33,23 @@ const ProductCard = ({ product }) => {
         >
             <div className="relative aspect-[3/4] mb-4 overflow-hidden bg-gray-100">
                 <Link to={`/product/${product.id}`} className="block w-full h-full">
-                    <img
-                        src={mainImage}
-                        alt={product.name}
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${isHovered && product.image2_url ? 'opacity-0' : 'opacity-100'}`}
-                    />
-                    <img
-                        src={hoverImage}
-                        alt={`${product.name} alternative`}
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${isHovered && product.image2_url ? 'opacity-100' : 'opacity-0'}`}
-                    />
+                    {mainImage ? (
+                        <img
+                            src={mainImage}
+                            alt={product.name}
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${isHovered && parsedImages.length > 1 ? 'opacity-0' : 'opacity-100'}`}
+                        />
+                    ) : (
+                        <div className="absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">Sin imagen</div>
+                    )}
+
+                    {parsedImages.length > 1 && (
+                        <img
+                            src={hoverImage}
+                            alt={`${product.name} alternative`}
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+                        />
+                    )}
                 </Link>
 
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -43,13 +58,13 @@ const ProductCard = ({ product }) => {
                     </button>
                 </div>
 
-                {product.stock <= 5 && product.stock > 0 && (
+                {totalStock <= 5 && totalStock > 0 && (
                     <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">
                         Pocas unidades
                     </div>
                 )}
 
-                {product.stock === 0 && (
+                {totalStock === 0 && (
                     <div className="absolute top-2 left-2 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">
                         Agotado
                     </div>
@@ -62,8 +77,8 @@ const ProductCard = ({ product }) => {
                     <Link to={`/product/${product.id}`}>{product.name}</Link>
                 </h3>
                 <p className="text-sm text-gray-900 font-bold mt-auto tracking-widest">${formatPrice(product.price)}</p>
-                {product.colors && (
-                    <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">{product.colors.split(',').length} Colores</p>
+                {uniqueColors > 0 && (
+                    <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">{uniqueColors} Colores</p>
                 )}
             </div>
         </div>

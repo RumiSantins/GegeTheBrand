@@ -9,16 +9,27 @@ const Header = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isShopOpen, setIsShopOpen] = useState(false);
 
-    const categories = [
-        { name: 'ABRIGOS | BLAZER | JACKET', image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&q=80&w=400' },
-        { name: 'BLUSAS', image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&q=80&w=400' },
-        { name: 'BÁSICOS', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=400' },
-        { name: 'CALZADOS', image: 'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?auto=format&fit=crop&q=80&w=400' },
-        { name: 'FALDAS Y SHORT', image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&q=80&w=400' },
-        { name: 'PANTALONES', image: 'https://images.unsplash.com/photo-1582552938357-32b906df40cb?auto=format&fit=crop&q=80&w=400' },
-        { name: 'SUÉTERES Y TEJIDOS', image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&q=80&w=400' },
-        { name: 'TOPS', image: 'https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?auto=format&fit=crop&q=80&w=400' }
-    ];
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await fetch('http://localhost:8080/categories');
+                if (res.ok) {
+                    const data = await res.json();
+                    setCategories(data);
+                }
+            } catch (err) {
+                console.error("Error fetching categories:", err);
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    const resolveImageUrl = (url) => {
+        if (!url) return '';
+        return url.startsWith('http') ? url : `http://localhost:8080${url}`;
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -83,7 +94,7 @@ const Header = () => {
 
                             {/* Text Center */}
                             <div className="text-center z-10 scale-[0.6] md:scale-90 flex flex-col items-center justify-center mt-0.5">
-                                <span className="block text-2xl font-serif font-bold tracking-tight leading-none text-black">GEGE</span>
+                                <span className="block text-3xl font-serif font-bold tracking-tight leading-none text-black">GEGE</span>
                                 <span className="block text-[0.4rem] font-sans font-bold tracking-[0.2em] text-black">THE BRAND</span>
                             </div>
                         </div>
@@ -178,7 +189,7 @@ const Header = () => {
                                             onClick={() => { setIsMobileMenuOpen(false); setIsShopOpen(false); }}
                                         >
                                             <div className="relative w-full aspect-[4/5] bg-gray-100 overflow-hidden mb-2 rounded-sm shadow-sm transition-shadow duration-300 group-hover:shadow-md">
-                                                <img src={cat.image} alt={cat.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105" />
+                                                <img src={resolveImageUrl(cat.image_url)} alt={cat.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105" />
                                             </div>
                                             <span className="text-gray-900 font-serif text-[10px] sm:text-[11px] tracking-widest uppercase leading-snug px-1 line-clamp-2">
                                                 {cat.name}

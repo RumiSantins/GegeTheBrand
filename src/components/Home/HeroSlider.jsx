@@ -1,40 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-
-const slides = [
-    {
-        id: 1,
-        image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop",
-        title: "NUEVA COLECCIÓN 2026",
-        subtitle: "Elegancia minimalista para el día a día.",
-        cta: "VER COLECCIÓN"
-    },
-    {
-        id: 2,
-        image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop",
-        title: "DENIM EXCLUSIVO",
-        subtitle: "La reinvención del clásico.",
-        cta: "COMPRAR DENIM"
-    },
-    {
-        id: 3,
-        image: "https://images.unsplash.com/photo-1550614000-4b9519e0034a?q=80&w=2073&auto=format&fit=crop",
-        title: "ESENCIALES URBANOS",
-        subtitle: "Diseños que marcan tendencia.",
-        cta: "DESCUBRIR MÁS"
-    }
-];
+import { useNavigate } from 'react-router-dom';
 
 const HeroSlider = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [slides, setSlides] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
+        // Fetch slides from backend
+        fetch('http://localhost:8080/hero-slides')
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    setSlides(data);
+                }
+            })
+            .catch(err => console.error("Error fetching hero slides:", err));
+    }, []);
+
+    useEffect(() => {
+        if (slides.length <= 1) return;
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % slides.length);
         }, 5000);
         return () => clearInterval(timer);
-    }, []);
+    }, [slides]);
+
+    const resolveImageUrl = (url) => {
+        if (!url) return '';
+        return url.startsWith('http') ? url : `http://localhost:8080${encodeURI(url)}`;
+    };
+
+    const handleCtaClick = (ctaUrl) => {
+        if (!ctaUrl) return;
+        if (ctaUrl.startsWith('http://') || ctaUrl.startsWith('https://')) {
+            window.location.href = ctaUrl;
+        } else {
+            navigate(ctaUrl);
+        }
+    };
+
+    if (slides.length === 0) return <div className="h-[80vh] w-full bg-gray-900 flex items-center justify-center text-white">Cargando...</div>;
 
     return (
         <div className="relative h-[80vh] w-full overflow-hidden bg-gray-900 text-white">
@@ -50,7 +58,7 @@ const HeroSlider = () => {
                     {/* Background Image */}
                     <div
                         className="absolute inset-0 bg-cover bg-center"
-                        style={{ backgroundImage: `url(${slides[currentSlide].image})` }}
+                        style={{ backgroundImage: `url('${resolveImageUrl(slides[currentSlide].image_url)}')` }}
                     >
                         <div className="absolute inset-0 bg-black/30" /> {/* Overlay */}
                     </div>
@@ -79,9 +87,10 @@ const HeroSlider = () => {
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.9, duration: 0.8 }}
+                                    onClick={() => handleCtaClick(slides[currentSlide].cta_url)}
                                     className="btn-accent flex items-center space-x-2 group"
                                 >
-                                    <span>{slides[currentSlide].cta}</span>
+                                    <span>{slides[currentSlide].cta_text}</span>
                                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </motion.button>
                             </div>

@@ -50,16 +50,25 @@ const ProductDetail = () => {
         );
     }
 
-    const imgs = [];
-    if (product.image_url) {
-        imgs.push(product.image_url.startsWith('http') ? product.image_url : `http://localhost:8080${product.image_url}`);
-    }
-    if (product.image2_url && product.image2_url !== product.image_url) {
-        imgs.push(product.image2_url.startsWith('http') ? product.image2_url : `http://localhost:8080${product.image2_url}`);
-    }
+    let parsedImages = [];
+    try {
+        parsedImages = JSON.parse(product.images || '[]');
+    } catch (e) { }
 
-    const sizesArray = product.sizes ? product.sizes.split(',').map(s => s.trim()).filter(s => s) : [];
-    const colorsArray = product.colors ? product.colors.split(',').map(c => c.trim()).filter(c => c) : [];
+    const imgs = parsedImages.map(url => url.startsWith('http') ? url : `http://localhost:8080${url}`);
+
+    // Extract unique sizes and colors from variants
+    const variants = product.variants || [];
+    const sizesArray = [...new Set(variants.map(v => v.size))];
+    const colorsArray = [...new Set(variants.map(v => v.color))];
+
+    // Find the currently selected variant
+    const currentVariant = variants.find(v => v.size === selectedSize && v.color === selectedColor);
+
+    // Total product stock for a quick check if completely sold out
+    const totalStock = variants.reduce((acc, curr) => acc + curr.stock, 0);
+
+    const isAddToCartDisabled = totalStock === 0 || (selectedSize && selectedColor && !currentVariant) || (currentVariant && currentVariant.stock === 0);
 
     const handleAddToCart = () => {
         if (sizesArray.length > 0 && !selectedSize) {
@@ -134,18 +143,26 @@ const ProductDetail = () => {
                                         Color: {selectedColor || 'Seleccionar'}
                                     </h3>
                                     <div className="flex flex-wrap gap-2">
-                                        {colorsArray.map(color => (
-                                            <button
-                                                key={color}
-                                                onClick={() => setSelectedColor(color)}
-                                                className={`px-4 py-2 border text-xs font-bold uppercase tracking-widest transition-all ${selectedColor === color
-                                                        ? 'border-black bg-black text-white'
-                                                        : 'border-gray-300 text-gray-600 hover:border-black'
-                                                    }`}
-                                            >
-                                                {color}
-                                            </button>
-                                        ))}
+                                        {colorsArray.map(color => {
+                                            // Check if this color has any stock available at all
+                                            const hasStockForColor = variants.some(v => v.color === color && v.stock > 0);
+
+                                            return (
+                                                <button
+                                                    key={color}
+                                                    onClick={() => setSelectedColor(color)}
+                                                    disabled={!hasStockForColor}
+                                                    className={`px-4 py-2 border text-xs font-bold uppercase tracking-widest transition-all ${!hasStockForColor
+                                                            ? 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
+                                                            : selectedColor === color
+                                                                ? 'border-black bg-black text-white'
+                                                                : 'border-gray-300 text-gray-600 hover:border-black'
+                                                        }`}
+                                                >
+                                                    {color}
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -162,18 +179,31 @@ const ProductDetail = () => {
                                         </button>
                                     </div>
                                     <div className="grid grid-cols-4 gap-2">
-                                        {sizesArray.map(size => (
-                                            <button
-                                                key={size}
-                                                onClick={() => setSelectedSize(size)}
-                                                className={`py-3 border text-xs font-bold uppercase tracking-widest transition-all ${selectedSize === size
-                                                        ? 'border-black bg-black text-white'
-                                                        : 'border-gray-300 text-gray-600 hover:border-black'
-                                                    }`}
-                                            >
-                                                {size}
-                                            </button>
-                                        ))}
+                                        {sizesArray.map(size => {
+                                            // Ensure this size has stock, particularly within the selected color if there is one
+                                            let hasStockForSize = false;
+                                            if (selectedColor) {
+                                                hasStockForSize = variants.some(v => v.size === size && v.color === selectedColor && v.stock > 0);
+                                            } else {
+                                                hasStockForSize = variants.some(v => v.size === size && v.stock > 0);
+                                            }
+
+                                            return (
+                                                <button
+                                                    key={size}
+                                                    onClick={() => setSelectedSize(size)}
+                                                    disabled={!hasStockForSize}
+                                                    className={`py-3 border text-xs font-bold uppercase tracking-widest transition-all ${!hasStockForSize
+                                                            ? 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
+                                                            : selectedSize === size
+                                                                ? 'border-black bg-black text-white'
+                                                                : 'border-gray-300 text-gray-600 hover:border-black'
+                                                        }`}
+                                                >
+                                                    {size}
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -182,13 +212,13 @@ const ProductDetail = () => {
                             <div className="border-t border-gray-100 pt-8 mt-auto">
                                 <button
                                     onClick={handleAddToCart}
-                                    disabled={product.stock === 0}
-                                    className={`w-full py-4 text-xs font-bold uppercase tracking-[0.2em] transition-colors ${product.stock === 0
-                                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                            : 'bg-black text-white hover:bg-gray-800'
+                                    disabled={isAddToCartDisabled}
+                                    className={`w-full py-4 text-xs font-bold uppercase tracking-[0.2em] transition-colors ${isAddToCartDisabled
+                                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                        : 'bg-black text-white hover:bg-gray-800'
                                         }`}
                                 >
-                                    {product.stock === 0 ? 'Agotado' : 'Añadir al carrito'}
+                                    {totalStock === 0 ? 'Agotado' : isAddToCartDisabled ? 'Selecciona variante con stock' : 'Añadir al carrito'}
                                 </button>
 
                                 <div className="mt-4 flex gap-4">
