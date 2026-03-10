@@ -27,7 +27,7 @@ const BrandManifesto = () => {
     const opacity = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [0, 1, 1, 0]);
 
     return (
-        <section className="relative py-32 md:py-48 overflow-hidden bg-white">
+        <section id="nosotros" className="relative py-32 md:py-48 overflow-hidden bg-white">
             {/* Soft Background Decorative Elements */}
             <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none select-none">
                 <div className="absolute top-10 left-10 text-[10rem] font-serif italic text-black leading-none">{manifesto?.bg_text_1 || 'GEGE'}</div>

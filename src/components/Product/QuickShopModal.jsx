@@ -1,0 +1,240 @@
+import React, { useState, useContext, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Plus, Minus } from 'lucide-react';
+import { CartContext } from '../../context/CartContext';
+import { Link } from 'react-router-dom';
+
+const QuickShopModal = ({ isOpen, onClose, product }) => {
+    const { addToCart } = useContext(CartContext);
+    const [selectedSize, setSelectedSize] = useState(null);
+    const [selectedColor, setSelectedColor] = useState(null);
+    const [quantity, setQuantity] = useState(1);
+
+    // Reset states when product changes or modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setSelectedSize(null);
+            setSelectedColor(null);
+            setQuantity(1);
+        }
+    }, [isOpen, product]);
+
+    if (!product) return null;
+
+    let parsedImages = [];
+    try {
+        parsedImages = JSON.parse(product.images || '[]');
+    } catch (e) { }
+
+    const imgs = parsedImages.map(url => url.startsWith('http') ? url : `http://localhost:8080${url}`);
+    const mainImage = imgs.length > 0 ? imgs[0] : '';
+
+    const variants = product.variants || [];
+    const sizesArray = [...new Set(variants.map(v => v.size))];
+    const colorsArray = [...new Set(variants.map(v => v.color))];
+
+    const currentVariant = variants.find(v => v.size === selectedSize && v.color === selectedColor);
+    const totalStock = variants.reduce((acc, curr) => acc + curr.stock, 0);
+
+    const isAddToCartDisabled = totalStock === 0 || (selectedSize && selectedColor && !currentVariant) || (currentVariant && currentVariant.stock === 0);
+
+    const handleAddToCart = () => {
+        if (sizesArray.length > 0 && !selectedSize) {
+            alert('Por favor selecciona una talla');
+            return;
+        }
+        if (colorsArray.length > 0 && !selectedColor) {
+            alert('Por favor selecciona un color');
+            return;
+        }
+
+        const itemToAdd = {
+            ...product,
+            image: mainImage,
+            selectedSize,
+            selectedColor,
+            variant_id: currentVariant ? currentVariant.id : null,
+            quantity
+        };
+
+        addToCart(itemToAdd);
+        onClose(); // Close modal after adding
+    };
+
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <>
+                    {/* Backdrop */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        onClick={onClose}
+                        className="fixed inset-0 bg-black/50 z-50"
+                    />
+
+                    {/* Modal */}
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 py-12 pointer-events-none">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.98, y: 10 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className="bg-white w-full max-w-3xl max-h-full overflow-y-auto shadow-2xl pointer-events-auto rounded-lg flex flex-col relative"
+                            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+                        >
+                            {/* Header */}
+                            <div className="flex justify-between items-center p-6 border-b border-gray-100 sticky top-0 bg-white z-10">
+                                <h2 className="font-header font-bold text-lg">Tienda rápida</h2>
+                                <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex flex-col md:flex-row p-6 gap-8">
+                                {/* Left: Image & Info */}
+                                <div className="w-full md:w-1/2 flex flex-col">
+                                    <div className="aspect-[3/4] bg-gray-100 mb-4 rounded overflow-hidden">
+                                        {mainImage ? (
+                                            <img src={mainImage} className="w-full h-full object-cover" alt={product.name} />
+                                        ) : (
+                                            <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 text-sm">Sin imagen</div>
+                                        )}
+                                    </div>
+                                    <h3 className="font-header font-bold text-xl uppercase tracking-tight mb-2">{product.name}</h3>
+                                    <p className="text-lg text-gray-900 font-bold mb-4 tracking-widest">S/. {product.price.toFixed(2)}</p>
+
+                                    <Link to={`/product/${product.id}`} className="text-sm border-b border-black self-start pb-1 uppercase font-bold tracking-widest hover:text-gray-600 transition">
+                                        Ver detalles del producto
+                                    </Link>
+                                </div>
+
+                                {/* Right: Variants & Action */}
+                                <div className="w-full md:w-1/2 flex flex-col relative">
+
+                                    {/* Colors */}
+                                    {colorsArray.length > 0 && (
+                                        <div className="mb-6">
+                                            <h4 className="text-xs font-bold uppercase tracking-widest mb-3">
+                                                Color <span className="text-gray-500 font-normal">{selectedColor || ''}</span>
+                                            </h4>
+                                            <div className="flex flex-wrap gap-2">
+                                                {colorsArray.map(color => {
+                                                    const colorVariant = variants.find(v => v.color === color);
+                                                    const hasStockForColor = variants.some(v => v.color === color && v.stock > 0);
+                                                    const renderColorHex = colorVariant?.color_hex || color; // fallback to color text
+
+                                                    return (
+                                                        <button
+                                                            key={color}
+                                                            onClick={() => setSelectedColor(color)}
+                                                            disabled={!hasStockForColor}
+                                                            className={`w-10 h-10 rounded-full border-2 transition-all ${!hasStockForColor
+                                                                ? 'border-gray-200 opacity-30 cursor-not-allowed'
+                                                                : selectedColor === color
+                                                                    ? 'border-black'
+                                                                    : 'border-transparent ring-1 ring-gray-300 hover:border-gray-400'
+                                                                }`}
+                                                            style={{ backgroundColor: renderColorHex }}
+                                                            title={color}
+                                                        >
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                            {/* Render color names as buttons too just in case CSS background fails for weird names */}
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {colorsArray.map(color => {
+                                                    const hasStockForColor = variants.some(v => v.color === color && v.stock > 0);
+                                                    return (
+                                                        <button
+                                                            key={color}
+                                                            onClick={() => setSelectedColor(color)}
+                                                            disabled={!hasStockForColor}
+                                                            className={`px-3 py-1 border text-[10px] font-bold uppercase tracking-widest transition-all ${!hasStockForColor
+                                                                ? 'border-gray-200 text-gray-300 cursor-not-allowed hidden'
+                                                                : selectedColor === color
+                                                                    ? 'border-black bg-black text-white'
+                                                                    : 'border-gray-300 text-gray-600 hover:border-black'
+                                                                }`}
+                                                        >
+                                                            {color}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Sizes */}
+                                    {sizesArray.length > 0 && (
+                                        <div className="mb-8">
+                                            <h4 className="text-xs font-bold uppercase tracking-widest mb-3">
+                                                Size <span className="text-gray-500 font-normal">{selectedSize || ''}</span>
+                                            </h4>
+                                            <div className="flex flex-wrap gap-2">
+                                                {sizesArray.map(size => {
+                                                    let hasStockForSize = false;
+                                                    if (selectedColor) {
+                                                        hasStockForSize = variants.some(v => v.size === size && v.color === selectedColor && v.stock > 0);
+                                                    } else {
+                                                        hasStockForSize = variants.some(v => v.size === size && v.stock > 0);
+                                                    }
+
+                                                    return (
+                                                        <button
+                                                            key={size}
+                                                            onClick={() => setSelectedSize(size)}
+                                                            disabled={!hasStockForSize}
+                                                            className={`w-12 h-12 flex items-center justify-center border text-xs font-bold transition-all rounded-full ${!hasStockForSize
+                                                                ? 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
+                                                                : selectedSize === size
+                                                                    ? 'border-black bg-black text-white'
+                                                                    : 'border-gray-300 text-gray-600 hover:border-black'
+                                                                }`}
+                                                        >
+                                                            {size}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Actions bottom fixed inside right col */}
+                                    <div className="mt-auto pt-6 flex flex-col sm:flex-row gap-4 border-t border-gray-100">
+                                        <div className="flex items-center justify-between border border-gray-300 rounded-full px-4 py-2 w-full sm:w-1/3">
+                                            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-gray-500 hover:text-black transition">
+                                                <Minus size={16} />
+                                            </button>
+                                            <span className="text-sm font-bold w-8 text-center">{quantity}</span>
+                                            <button onClick={() => setQuantity(quantity + 1)} className="text-gray-500 hover:text-black transition">
+                                                <Plus size={16} />
+                                            </button>
+                                        </div>
+
+                                        <button
+                                            onClick={handleAddToCart}
+                                            disabled={isAddToCartDisabled}
+                                            className={`w-full sm:w-2/3 py-3 rounded-full text-sm font-bold uppercase tracking-widest transition-colors ${isAddToCartDisabled
+                                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                                : 'bg-black text-white hover:bg-gray-800 shadow-lg'
+                                                }`}
+                                        >
+                                            {totalStock === 0 ? 'Agotado' : isAddToCartDisabled ? 'Seleccionar variante' : 'Añadir al carrito'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                </>
+            )}
+        </AnimatePresence>
+    );
+};
+
+export default QuickShopModal;

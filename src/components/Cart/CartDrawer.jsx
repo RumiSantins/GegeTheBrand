@@ -7,14 +7,45 @@ import { Link } from 'react-router-dom';
 const CartDrawer = () => {
     const { isCartOpen, toggleCart, cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
 
-    const handleCheckout = () => {
+    const handleCheckout = async () => {
+        // Enviar pedido al backend primero
+        const orderData = {
+            customer_info: "Compra iniciada en web, pendiente de pago por WhatsApp",
+            total_amount: cartTotal,
+            items: cartItems.map(item => ({
+                product_id: item.id,
+                variant_id: item.variant_id || item.variantId || null,
+                product_name: item.name,
+                size: item.selectedSize + (item.selectedColor ? ` - ${item.selectedColor}` : ''),
+                quantity: item.quantity,
+                price_at_time: item.price
+            }))
+        };
+
+        let generatedOrderIdStr = Math.floor(1000 + Math.random() * 9000).toString();
+
+        try {
+            const res = await fetch('http://localhost:8080/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                generatedOrderIdStr = data.order_number; // Use the generated shorter order number from backend
+            }
+        } catch (error) {
+            console.error("Error al registrar el pedido en el sistema:", error);
+            // Sigue redirigiendo a whatsapp aunque falle local...
+        }
+
         const phoneNumber = "51930291524";
-        const orderId = Math.floor(1000 + Math.random() * 9000);
         const now = new Date();
         const timestamp = `${now.toLocaleDateString('es-PE')} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
 
         let message = `🛍️ *GEGE THE BRAND - RESUMEN DE PEDIDO*\n`;
-        message += `Ref: #${orderId} | ${timestamp}\n`;
+        message += `Ref: #${generatedOrderIdStr} | ${timestamp}\n`;
         message += `───────────────────────\n\n`;
 
         message += `📍 *ENVÍO*\n`;
@@ -24,7 +55,7 @@ const CartDrawer = () => {
         message += `✨ *PRODUCTOS*\n`;
         cartItems.forEach(item => {
             message += `• *${item.name.toUpperCase()}*\n`;
-            message += `  Talla: ${item.size}\n`;
+            message += `  Talla/Color: ${item.selectedSize || 'Única'} ${item.selectedColor ? `- ${item.selectedColor}` : ''}\n`;
             message += `  Cantidad: ${item.quantity}\n`;
             message += `  Precio: S/ ${item.price.toFixed(2)} c/u\n\n`;
         });
@@ -38,6 +69,9 @@ const CartDrawer = () => {
 
         const waUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
         window.open(waUrl, '_blank');
+
+        // Vaciamos carrito (Opcional, pero suele hacerse después de pasar a checkout)
+        // Podríamos tener una función para esto en el contexto, pero por ahora lo dejamos como está o refrescamos la página
     };
 
     return (
@@ -88,7 +122,7 @@ const CartDrawer = () => {
                             ) : (
                                 cartItems.map((item) => (
                                     <CartItem
-                                        key={`${item.id}-${item.size}`}
+                                        key={`${item.id}-${item.selectedSize}-${item.selectedColor}`}
                                         item={item}
                                         updateQuantity={updateQuantity}
                                         removeFromCart={removeFromCart}
@@ -125,8 +159,25 @@ const CartDrawer = () => {
 // Extracted CartItem component for better performance and isolated state (like images)
 const CartItem = ({ item, updateQuantity, removeFromCart }) => {
     // Determine initial image source safely
-    const initialImage = item.image1 || (item.images && item.images.length > 0 ? item.images[0] : null);
-    const [imgSrc, setImgSrc] = React.useState(initialImage);
+    let extractedImage = item.image || item.image1;
+
+    // If not provided directly, try to parse from the 'images' array/JSON string
+    if (!extractedImage && item.images) {
+        try {
+            const parsed = typeof item.images === 'string' ? JSON.parse(item.images) : item.images;
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                extractedImage = parsed[0];
+            }
+        } catch (e) { }
+    }
+
+    // Resolve URL to backend if relative
+    let finalImage = null;
+    if (extractedImage) {
+        finalImage = extractedImage.startsWith('http') ? extractedImage : `http://localhost:8080${extractedImage}`;
+    }
+
+    const [imgSrc, setImgSrc] = React.useState(finalImage);
     const fallbackImage = "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&q=80&w=800";
 
     return (
@@ -141,19 +192,19 @@ const CartItem = ({ item, updateQuantity, removeFromCart }) => {
             </div>
             <div className="flex-1">
                 <h3 className="font-bold text-sm font-header">{item.name}</h3>
-                <p className="text-gray-500 text-xs mt-1">Talle: {item.size}</p>
+                <p className="text-gray-500 text-xs mt-1">Talla/Color: {item.selectedSize || 'Única'} {item.selectedColor ? `- ${item.selectedColor}` : ''}</p>
                 <p className="text-sm font-bold mt-2">S/ {item.price.toFixed(2)}</p>
             </div>
             <div className="flex flex-col justify-between items-end">
                 <button
-                    onClick={() => removeFromCart(item.id, item.size)}
+                    onClick={() => removeFromCart(item.id, item.selectedSize, item.selectedColor)}
                     className="text-gray-400 hover:text-red-500 transition-colors mb-2"
                 >
                     <Trash2 className="w-4 h-4" />
                 </button>
                 <div className="flex items-center border rounded-md">
                     <button
-                        onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, item.selectedSize, item.selectedColor, item.quantity - 1)}
                         className="px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-50 transition-colors"
                         disabled={item.quantity <= 1}
                     >
@@ -161,7 +212,7 @@ const CartItem = ({ item, updateQuantity, removeFromCart }) => {
                     </button>
                     <span className="text-xs font-medium px-2 w-6 text-center">{item.quantity}</span>
                     <button
-                        onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.selectedSize, item.selectedColor, item.quantity + 1)}
                         className="px-2 py-1 text-gray-600 hover:bg-gray-100 transition-colors"
                     >
                         <Plus className="w-3 h-3" />

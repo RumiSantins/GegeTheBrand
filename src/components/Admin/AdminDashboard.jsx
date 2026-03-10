@@ -6,7 +6,9 @@ import CategoryForm from './CategoryForm';
 import HeroSlideForm from './HeroSlideForm';
 import ManifestoForm from './ManifestoForm';
 import SiteSettingsForm from './SiteSettingsForm';
-import { Plus, Edit2, Trash2, Tag, Box, Images, BookOpen, Settings } from 'lucide-react';
+import EditorialSettingsForm from './EditorialSettingsForm';
+import OrdersTab from './OrdersTab';
+import { Plus, Edit2, Trash2, Tag, Box, Images, BookOpen, Settings, LayoutTemplate, ShoppingCart } from 'lucide-react';
 
 const AdminDashboard = () => {
     const { token, logout, getAuthHeaders } = useContext(AuthContext);
@@ -210,6 +212,18 @@ const AdminDashboard = () => {
                     >
                         <Settings size={16} /> Textos Tienda
                     </button>
+                    <button
+                        onClick={() => setActiveTab('editorial')}
+                        className={`font-bold uppercase tracking-wider text-sm pb-2 border-b-2 flex items-center gap-2 transition ${activeTab === 'editorial' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                    >
+                        <LayoutTemplate size={16} /> Editorial
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('orders')}
+                        className={`font-bold uppercase tracking-wider text-sm pb-2 border-b-2 flex items-center gap-2 transition ${activeTab === 'orders' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                    >
+                        <ShoppingCart size={16} /> Pedidos
+                    </button>
                 </div>
 
                 {activeTab === 'products' && (
@@ -261,6 +275,9 @@ const AdminDashboard = () => {
                                             } catch (e) { }
 
                                             const totalStock = product.variants ? product.variants.reduce((acc, curr) => acc + curr.stock, 0) : 0;
+                                            const uniqueSizes = (product.variants && product.variants.length > 0)
+                                                ? Array.from(new Set(product.variants.map(v => v.size))).filter(Boolean).join(', ')
+                                                : 'N/A';
 
                                             return (
                                                 <tr key={product.id} className="hover:bg-gray-50 transition">
@@ -275,7 +292,7 @@ const AdminDashboard = () => {
                                                     <td className="px-6 py-4 font-medium">{product.name}</td>
                                                     <td className="px-6 py-4">
                                                         <div className="font-semibold">{product.category}</div>
-                                                        <div className="text-xs text-gray-500">{product.sizes || 'N/A'}</div>
+                                                        <div className="text-xs text-gray-500">{uniqueSizes || 'N/A'}</div>
                                                     </td>
                                                     <td className="px-6 py-4">${product.price.toFixed(2)}</td>
                                                     <td className="px-6 py-4">
@@ -455,6 +472,14 @@ const AdminDashboard = () => {
                     <div className="max-w-4xl mx-auto">
                         <SiteSettingsForm />
                     </div>
+                )}
+
+                {activeTab === 'editorial' && (
+                    <EditorialSettingsForm />
+                )}
+
+                {activeTab === 'orders' && (
+                    <OrdersTab />
                 )}
             </div>
         </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onQuickShop }) => {
     const [isHovered, setIsHovered] = useState(false);
 
     const formatPrice = (price) => {
@@ -53,7 +53,13 @@ const ProductCard = ({ product }) => {
                 </Link>
 
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button className="bg-white p-2 rounded-full shadow-md hover:bg-black hover:text-white transition-colors duration-300">
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            if (onQuickShop) onQuickShop();
+                        }}
+                        className="bg-white p-2 rounded-full shadow-md hover:bg-black hover:text-white transition-colors duration-300 pointer-events-auto"
+                    >
                         <ShoppingBag size={18} />
                     </button>
                 </div>
@@ -71,7 +77,7 @@ const ProductCard = ({ product }) => {
                 )}
             </div>
 
-            <div className="flex flex-col flex-grow text-center">
+            <div className="flex flex-col flex-grow text-center mt-4">
                 <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider">{product.category}</p>
                 <h3 className="text-sm font-semibold mb-1 uppercase tracking-wide leading-tight group-hover:underline">
                     <Link to={`/product/${product.id}`}>{product.name}</Link>

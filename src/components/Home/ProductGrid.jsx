@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../Product/ProductCard';
+import QuickShopModal from '../Product/QuickShopModal';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom';
 
 const ProductGrid = () => {
-    const [activeFilter, setActiveFilter] = useState('All');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const urlCategory = searchParams.get('category');
+
+    // Initialize filter from URL or default to 'All'
+    const [activeFilter, setActiveFilter] = useState(urlCategory || 'All');
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [settings, setSettings] = useState(null);
+    const [quickShopProduct, setQuickShopProduct] = useState(null);
 
     const fetchSettings = async () => {
         try {
@@ -55,6 +62,27 @@ const ProductGrid = () => {
         fetchSettings();
     }, []);
 
+    // Sync activeFilter when URL search parameter changes externally
+    useEffect(() => {
+        if (urlCategory) {
+            setActiveFilter(urlCategory);
+            // Optionally clear the query param after picking it up if we don't want it stuck in the URL, 
+            // but keeping it is fine for shareability. Let's just sync it.
+        } else {
+            // If urlCategory is removed, we might optionally want to reset to 'All', 
+            // but if user navigates back and forth it's fine.
+            // We'll trust the urlCategory.
+            if (searchParams.has('category') === false && activeFilter !== 'All') {
+                // do nothing, let local state persist if they cleared URL manually
+            }
+        }
+    }, [urlCategory]);
+
+    const handleCategorySelect = (category) => {
+        setActiveFilter(category);
+        setSearchParams({ category });
+    };
+
     const filteredProducts = activeFilter === 'All'
         ? products
         : products.filter(p => p.category?.toLowerCase() === activeFilter.toLowerCase());
@@ -75,7 +103,7 @@ const ProductGrid = () => {
                     {categories.map(category => (
                         <button
                             key={category}
-                            onClick={() => setActiveFilter(category)}
+                            onClick={() => handleCategorySelect(category)}
                             className={`text-xs font-bold uppercase tracking-widest pb-1 border-b-2 whitespace-nowrap transition-all duration-300 ${activeFilter === category
                                 ? 'border-black text-black'
                                 : 'border-transparent text-gray-400 hover:text-black'
@@ -107,12 +135,18 @@ const ProductGrid = () => {
                                 key={product.id}
                                 className="w-[80vw] sm:w-[45vw] md:w-[320px] lg:w-[280px] xl:w-[300px] flex-shrink-0 snap-center md:snap-start"
                             >
-                                <ProductCard product={product} />
+                                <ProductCard product={product} onQuickShop={() => setQuickShopProduct(product)} />
                             </motion.div>
                         ))}
                     </AnimatePresence>
                 </motion.div>
             )}
+
+            <QuickShopModal
+                isOpen={!!quickShopProduct}
+                onClose={() => setQuickShopProduct(null)}
+                product={quickShopProduct}
+            />
         </section>
     );
 };

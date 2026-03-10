@@ -85,6 +85,7 @@ const ProductDetail = () => {
             image: imgs[0],
             selectedSize,
             selectedColor,
+            variant_id: currentVariant ? currentVariant.id : null,
             quantity
         };
 
@@ -144,22 +145,24 @@ const ProductDetail = () => {
                                     </h3>
                                     <div className="flex flex-wrap gap-2">
                                         {colorsArray.map(color => {
-                                            // Check if this color has any stock available at all
+                                            const colorVariant = variants.find(v => v.color === color);
                                             const hasStockForColor = variants.some(v => v.color === color && v.stock > 0);
+                                            const renderColorHex = colorVariant?.color_hex || color; // fallback
 
                                             return (
                                                 <button
                                                     key={color}
                                                     onClick={() => setSelectedColor(color)}
                                                     disabled={!hasStockForColor}
-                                                    className={`px-4 py-2 border text-xs font-bold uppercase tracking-widest transition-all ${!hasStockForColor
-                                                            ? 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
-                                                            : selectedColor === color
-                                                                ? 'border-black bg-black text-white'
-                                                                : 'border-gray-300 text-gray-600 hover:border-black'
+                                                    className={`w-10 h-10 rounded-full border-2 transition-all ${!hasStockForColor
+                                                        ? 'border-gray-200 opacity-30 cursor-not-allowed'
+                                                        : selectedColor === color
+                                                            ? 'border-black'
+                                                            : 'border-transparent ring-1 ring-gray-300 hover:border-gray-400'
                                                         }`}
+                                                    style={{ backgroundColor: renderColorHex }}
+                                                    title={color}
                                                 >
-                                                    {color}
                                                 </button>
                                             );
                                         })}
@@ -194,10 +197,10 @@ const ProductDetail = () => {
                                                     onClick={() => setSelectedSize(size)}
                                                     disabled={!hasStockForSize}
                                                     className={`py-3 border text-xs font-bold uppercase tracking-widest transition-all ${!hasStockForSize
-                                                            ? 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
-                                                            : selectedSize === size
-                                                                ? 'border-black bg-black text-white'
-                                                                : 'border-gray-300 text-gray-600 hover:border-black'
+                                                        ? 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
+                                                        : selectedSize === size
+                                                            ? 'border-black bg-black text-white'
+                                                            : 'border-gray-300 text-gray-600 hover:border-black'
                                                         }`}
                                                 >
                                                     {size}

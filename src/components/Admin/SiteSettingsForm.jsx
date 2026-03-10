@@ -9,7 +9,8 @@ const SiteSettingsForm = () => {
 
     const [formData, setFormData] = useState({
         shop_title: "",
-        shop_description: ""
+        shop_description: "",
+        announcement_text: ""
     });
 
     useEffect(() => {
@@ -23,7 +24,8 @@ const SiteSettingsForm = () => {
                 const data = await res.json();
                 setFormData({
                     shop_title: data.shop_title || "",
-                    shop_description: data.shop_description || ""
+                    shop_description: data.shop_description || "",
+                    announcement_text: data.announcement_text || ""
                 });
             }
         } catch (err) {
@@ -98,6 +100,19 @@ const SiteSettingsForm = () => {
                         className="w-full border border-gray-300 rounded p-2 text-sm focus:outline-none focus:border-black"
                         placeholder="Ej. Descubre nuestra última colección..."
                     />
+                </div>
+
+                <div className="pt-4 border-t">
+                    <label className="block text-xs font-bold uppercase mb-1 text-purple-700">Texto de Anuncio Superior (Marquesina)</label>
+                    <textarea
+                        name="announcement_text"
+                        value={formData.announcement_text}
+                        onChange={handleChange}
+                        rows="2"
+                        className="w-full border border-purple-200 bg-purple-50 rounded p-2 text-sm font-medium focus:outline-none focus:border-purple-500"
+                        placeholder="Ej. ENVÍO GRATIS EN COMPRAS MAYORES A $150..."
+                    />
+                    <p className="text-[10px] text-gray-500 mt-1">Este texto se moverá continuamente en la barra superior de la tienda.</p>
                 </div>
             </div>
         </form>

@@ -10,6 +10,7 @@ import ProductDetail from './pages/ProductDetail';
 import WhatsAppBubble from './components/WhatsAppBubble/WhatsAppBubble';
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
+import OrderReceipt from './components/Admin/OrderReceipt';
 
 const AppContent = () => {
   const location = useLocation();
@@ -25,6 +26,7 @@ const AppContent = () => {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/receipt/:id" element={<OrderReceipt />} />
         </Routes>
       </main>
       {!isAdminRoute && <Footer />}

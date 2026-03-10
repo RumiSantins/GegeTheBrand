@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Search, User, Menu, X, Phone, Mail, Facebook, Instagram, Smartphone } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
+import SearchModal from './SearchModal';
 
 const Header = () => {
     const { toggleCart, cartCount } = useCart();
     const [scrolled, setScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isShopOpen, setIsShopOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [announcementText, setAnnouncementText] = useState("ENVÍO GRATIS EN COMPRAS MAYORES A $150  •  NUEVA COLECCIÓN DISPONIBLE  •  DESCUENTOS EXCLUSIVOS PARA MIEMBROS");
 
     const [categories, setCategories] = useState([]);
 
@@ -23,7 +26,23 @@ const Header = () => {
                 console.error("Error fetching categories:", err);
             }
         };
+
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch('http://localhost:8080/site-settings');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.announcement_text) {
+                        setAnnouncementText(data.announcement_text);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching site settings:", err);
+            }
+        };
+
         fetchCategories();
+        fetchSettings();
     }, []);
 
     const resolveImageUrl = (url) => {
@@ -55,8 +74,8 @@ const Header = () => {
         <header className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md' : 'bg-transparent'}`}>
             {/* Top Bar */}
             <div className="bg-purple-100 overflow-hidden py-2">
-                <div className="animate-marquee text-sm font-medium tracking-wide text-purple-900">
-                    ENVÍO GRATIS EN COMPRAS MAYORES A $150  •  NUEVA COLECCIÓN DISPONIBLE  •  DESCUENTOS EXCLUSIVOS PARA MIEMBROS
+                <div className="animate-marquee text-sm font-medium tracking-wide text-purple-900 whitespace-nowrap">
+                    {announcementText}
                 </div>
             </div>
 
@@ -87,14 +106,14 @@ const Header = () => {
                                     const y = 50 + radius * Math.sin(angleRad);
                                     const hue = 290 + 40 * Math.sin((i / 20) * 2 * Math.PI);
                                     return (
-                                        <circle key={i} cx={x} cy={y} r="3" fill={`hsl(${hue}, 90%, 70%)`} />
+                                        <circle key={i} cx={x} cy={y} r="2.7" fill={`hsl(${hue}, 90%, 70%)`} />
                                     );
                                 })}
                             </svg>
 
                             {/* Text Center */}
                             <div className="text-center z-10 scale-[0.6] md:scale-90 flex flex-col items-center justify-center mt-0.5">
-                                <span className="block text-3xl font-serif font-bold tracking-tight leading-none text-black">GEGE</span>
+                                <span className="block text-[1.53rem] font-serif font-bold tracking-tight leading-none text-black">GEGE</span>
                                 <span className="block text-[0.4rem] font-sans font-bold tracking-[0.2em] text-black">THE BRAND</span>
                             </div>
                         </div>
@@ -103,24 +122,42 @@ const Header = () => {
 
                 {/* Center: Navigation Links (Desktop) */}
                 <div className="hidden md:flex items-center space-x-8">
-                    {['INICIO', 'TIENDA', 'COLECCIONES', 'NOSOTROS'].map((item) => (
-                        <Link
-                            key={item}
-                            to="/"
+                    {[
+                        { name: 'INICIO', target: null },
+                        { name: 'TIENDA', target: 'shop' },
+                        { name: 'NOSOTROS', target: 'nosotros' },
+                    ].map((item) => (
+                        <button
+                            key={item.name}
+                            onClick={() => {
+                                if (!item.target) {
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                } else {
+                                    const el = document.getElementById(item.target);
+                                    if (el) {
+                                        const headerOffset = 100;
+                                        const elementPosition = el.getBoundingClientRect().top;
+                                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                                        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                                    }
+                                }
+                            }}
                             className="text-sm font-bold tracking-widest hover:text-purple-600 transition-colors relative group"
                         >
-                            {item}
+                            {item.name}
                             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-600 transition-all duration-300 group-hover:w-full"></span>
-                        </Link>
+                        </button>
                     ))}
                 </div>
 
                 {/* Right: Icons */}
                 <div className="w-1/3 flex items-center justify-end space-x-4 md:w-auto md:space-x-6">
-                    <Search className="w-5 h-5 hover:text-purple-600 cursor-pointer transition-colors" />
-                    <User className="w-5 h-5 hover:text-purple-600 cursor-pointer transition-colors" />
+                    <Search
+                        className="hidden md:block w-[1.32rem] h-[1.32rem] hover:text-purple-600 cursor-pointer transition-colors"
+                        onClick={() => setIsSearchOpen(true)}
+                    />
                     <div className="relative cursor-pointer group" onClick={toggleCart}>
-                        <ShoppingBag className="w-5 h-5 hover:text-purple-600 transition-colors group-hover:scale-110 duration-200" />
+                        <ShoppingBag className="w-[1.32rem] h-[1.32rem] hover:text-purple-600 transition-colors group-hover:scale-110 duration-200" />
                         {cartCount > 0 && (
                             <span className="absolute -top-2 -right-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-bounce">
                                 {cartCount}
@@ -162,6 +199,16 @@ const Header = () => {
                     <div className="flex flex-col text-[13px] tracking-[0.1em] font-medium text-gray-800 border-b border-gray-100">
                         {!isShopOpen ? (
                             <div className="flex flex-col px-6 pb-6 gap-6">
+                                <button
+                                    className="hover:text-purple-600 transition-colors flex justify-between items-center w-full uppercase"
+                                    onClick={() => {
+                                        setIsMobileMenuOpen(false);
+                                        setIsSearchOpen(true);
+                                    }}
+                                >
+                                    BUSCAR
+                                    <Search className="w-4 h-4 text-gray-400" />
+                                </button>
                                 <button className="hover:text-purple-600 transition-colors flex justify-between items-center w-full uppercase" onClick={() => setIsShopOpen(true)}>
                                     CATEGORÍAS
                                     <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
@@ -184,9 +231,26 @@ const Header = () => {
                                     {categories.map((cat, idx) => (
                                         <Link
                                             key={idx}
-                                            to="/"
+                                            to={`/?category=${encodeURIComponent(cat.name)}#shop`}
                                             className="flex flex-col w-full group"
-                                            onClick={() => { setIsMobileMenuOpen(false); setIsShopOpen(false); }}
+                                            onClick={() => {
+                                                setIsMobileMenuOpen(false);
+                                                setIsShopOpen(false);
+
+                                                setTimeout(() => {
+                                                    const shopSection = document.getElementById('shop');
+                                                    if (shopSection) {
+                                                        const headerOffset = 100;
+                                                        const elementPosition = shopSection.getBoundingClientRect().top;
+                                                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                                                        window.scrollTo({
+                                                            top: offsetPosition,
+                                                            behavior: 'smooth'
+                                                        });
+                                                    }
+                                                }, 150);
+                                            }}
                                         >
                                             <div className="relative w-full aspect-[4/5] bg-gray-100 overflow-hidden mb-2 rounded-sm shadow-sm transition-shadow duration-300 group-hover:shadow-md">
                                                 <img src={resolveImageUrl(cat.image_url)} alt={cat.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105" />
@@ -214,16 +278,6 @@ const Header = () => {
                         </div>
                     </div>
 
-                    {/* Account */}
-                    <div className="px-6 py-6 border-b border-gray-100">
-                        <div className="flex items-center gap-2 text-sm">
-                            <span className="text-gray-600">Su cuenta</span>
-                            <Link to="/" className="border-b border-black pb-0.5 hover:text-purple-600 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
-                                Iniciar sesión
-                            </Link>
-                        </div>
-                    </div>
-
                     {/* Socials */}
                     <div className="px-6 py-6 flex gap-4">
                         <a href="#" className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white hover:bg-purple-600 transition-colors group">
@@ -238,6 +292,12 @@ const Header = () => {
                     </div>
                 </div>
             </div>
+
+            <SearchModal
+                isOpen={isSearchOpen}
+                onClose={() => setIsSearchOpen(false)}
+                categories={categories}
+            />
         </header >
     );
 };

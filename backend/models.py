@@ -29,6 +29,25 @@ class SiteSettings(SQLModel, table=True):
     id: int = Field(default=1, primary_key=True)
     shop_title: str = Field(default="TIENDA")
     shop_description: str = Field(default="Descubre nuestra última colección. Piezas diseñadas con atención al detalle y materiales de primera calidad.")
+    announcement_text: str = Field(default="ENVÍO GRATIS EN COMPRAS MAYORES A $150  •  NUEVA COLECCIÓN DISPONIBLE  •  DESCUENTOS EXCLUSIVOS PARA MIEMBROS")
+
+class EditorialSettings(SQLModel, table=True):
+    id: int = Field(default=1, primary_key=True)
+    bg_text: str = Field(default="Muse")
+    title_line1: str = Field(default="LA")
+    title_italic: str = Field(default="NUEVA")
+    title_gradient: str = Field(default="POÉTICA")
+    description: str = Field(default="Redefiniendo la feminidad a través de líneas puras y texturas que cuentan historias de libertad y elegancia atemporal.")
+    quote_text: str = Field(default="La elegancia es la única belleza que nunca desaparece.")
+    quote_author: str = Field(default="Audrey Hepburn")
+    look_name: str = Field(default="Conjunto Minimal Seda")
+    look_price: str = Field(default="S/ 185")
+    image_1_url: str = Field(default="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop")
+    image_2_url: str = Field(default="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1976&auto=format&fit=crop")
+    image_main_url: str = Field(default="https://images.unsplash.com/photo-1549062572-544a64fb0c56?q=80&w=1974&auto=format&fit=crop")
+    image_3_url: str = Field(default="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2070&auto=format&fit=crop")
+    image_4_url: str = Field(default="https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=2070&auto=format&fit=crop")
+    image_5_url: str = Field(default="https://images.unsplash.com/photo-1518049362265-d5b2a6467637?q=80&w=1964&auto=format&fit=crop")
 
 class HeroSlide(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
@@ -43,6 +62,7 @@ class ProductVariant(SQLModel, table=True):
     product_id: UUID = Field(foreign_key="product.id")
     size: str
     color: str
+    color_hex: Optional[str] = Field(default="#FFFFFF")
     stock: int = Field(default=0)
     
     product: "Product" = Relationship(back_populates="variants")
@@ -62,3 +82,26 @@ class Product(SQLModel, table=True):
     colors: Optional[str] = None
     
     variants: List[ProductVariant] = Relationship(back_populates="product", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+
+class Order(SQLModel, table=True):
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    order_number: str = Field(index=True)  # Like a short reference
+    customer_info: str  # Could store basic stringified info if needed, or leave it mostly for whatsapp parsing
+    total_amount: float
+    status: str = Field(default="Pendiente") # Pendiente, Completada, Cancelada, Devuelta
+    created_at: str # Simple ISO string timestamp
+    
+    items: List["OrderItem"] = Relationship(back_populates="order", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+
+class OrderItem(SQLModel, table=True):
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    order_id: UUID = Field(foreign_key="order.id")
+    product_id: UUID = Field(foreign_key="product.id")
+    variant_id: Optional[UUID] = Field(foreign_key="productvariant.id", default=None)
+    
+    product_name: str
+    size: str
+    quantity: int
+    price_at_time: float
+    
+    order: "Order" = Relationship(back_populates="items")

@@ -76,7 +76,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
     };
 
     const handleAddVariant = () => {
-        setVariants([...variants, { size: '', color: '', stock: 0 }]);
+        setVariants([...variants, { size: '', color: '', color_hex: '#FFFFFF', stock: 0 }]);
     };
 
     const handleRemoveVariant = (index) => {
@@ -134,6 +134,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
             variants: variants.map(v => ({
                 size: v.size,
                 color: v.color,
+                color_hex: v.color_hex || '#FFFFFF',
                 stock: parseInt(v.stock) || 0
             }))
         };
@@ -210,9 +211,14 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                     <div className="space-y-2">
                         {variants.map((v, i) => (
                             <div key={i} className="flex flex-wrap md:flex-nowrap gap-2 items-center bg-gray-50 p-2 border">
-                                <input required type="text" placeholder="Talla (ej. S, 39, Única)" value={v.size} onChange={e => updateVariant(i, 'size', e.target.value)} className="w-full md:w-1/3 border p-2 text-sm" />
-                                <input required type="text" placeholder="Color (ej. Rojo, Múltiple)" value={v.color} onChange={e => updateVariant(i, 'color', e.target.value)} className="w-full md:w-1/3 border p-2 text-sm" />
-                                <input required type="number" min="0" placeholder="Stock" value={v.stock} onChange={e => updateVariant(i, 'stock', e.target.value)} className="w-full md:w-1/4 border p-2 text-sm" />
+                                <input required type="text" placeholder="Talla (ej. S, 39, Única)" value={v.size} onChange={e => updateVariant(i, 'size', e.target.value)} className="w-[80px] md:w-1/4 border p-2 text-sm" />
+                                <input required type="text" placeholder="Color (ej. Rojo)" value={v.color} onChange={e => updateVariant(i, 'color', e.target.value)} className="flex-1 md:w-1/3 border p-2 text-sm" />
+
+                                <div className="flex items-center gap-1 border bg-white p-1" title="Color visual (Hex)">
+                                    <input type="color" value={v.color_hex || '#FFFFFF'} onChange={e => updateVariant(i, 'color_hex', e.target.value)} className="w-8 h-8 cursor-pointer p-0 border-none bg-transparent" />
+                                </div>
+
+                                <input required type="number" min="0" placeholder="Stock" value={v.stock} onChange={e => updateVariant(i, 'stock', e.target.value)} className="w-[70px] border p-2 text-sm" />
                                 <button type="button" onClick={() => handleRemoveVariant(i)} className="text-red-500 p-2 hover:bg-red-50 transition">
                                     <Trash2 size={16} />
                                 </button>
