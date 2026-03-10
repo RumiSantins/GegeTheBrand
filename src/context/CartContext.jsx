@@ -11,14 +11,15 @@ export const CartProvider = ({ children }) => {
     const addToCart = (product) => {
         setCartItems(prev => {
             const existing = prev.find(item => item.id === product.id && item.selectedSize === product.selectedSize && item.selectedColor === product.selectedColor);
+            const qtyToAdd = product.quantity || 1;
             if (existing) {
                 return prev.map(item =>
                     item.id === product.id && item.selectedSize === product.selectedSize && item.selectedColor === product.selectedColor
-                        ? { ...item, quantity: item.quantity + 1 }
+                        ? { ...item, quantity: item.quantity + qtyToAdd }
                         : item
                 );
             }
-            return [...prev, { ...product, quantity: 1 }];
+            return [...prev, { ...product, quantity: qtyToAdd }];
         });
         setIsCartOpen(true);
     };

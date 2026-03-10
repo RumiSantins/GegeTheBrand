@@ -20,7 +20,9 @@ const ProductCard = ({ product, onQuickShop }) => {
     } catch (e) { }
 
     const totalStock = product.variants ? product.variants.reduce((acc, curr) => acc + curr.stock, 0) : 0;
-    const uniqueColors = product.variants ? [...new Set(product.variants.map(v => v.color))].length : 0;
+    const uniqueColorObjects = product.variants 
+        ? product.variants.filter((v, i, a) => a.findIndex(t => t.color === v.color) === i && v.color)
+        : [];
 
     const mainImage = parsedImages.length > 0 ? resolveImageUrl(parsedImages[0]) : '';
     const hoverImage = parsedImages.length > 1 ? resolveImageUrl(parsedImages[1]) : mainImage;
@@ -82,9 +84,18 @@ const ProductCard = ({ product, onQuickShop }) => {
                 <h3 className="text-sm font-semibold mb-1 uppercase tracking-wide leading-tight group-hover:underline">
                     <Link to={`/product/${product.id}`}>{product.name}</Link>
                 </h3>
-                <p className="text-sm text-gray-900 font-bold mt-auto tracking-widest">${formatPrice(product.price)}</p>
-                {uniqueColors > 0 && (
-                    <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">{uniqueColors} Colores</p>
+                <p className="text-sm text-gray-900 font-bold mt-auto tracking-widest">S/ {formatPrice(product.price)}</p>
+                {uniqueColorObjects.length > 0 && (
+                    <div className="flex items-center justify-center gap-1.5 mt-2">
+                        {uniqueColorObjects.map((variant, idx) => (
+                            <div 
+                                key={variant.color || idx} 
+                                className="w-3.5 h-3.5 rounded-full border border-gray-300 shadow-sm"
+                                style={{ backgroundColor: variant.color_hex || variant.color }}
+                                title={variant.color}
+                            />
+                        ))}
+                    </div>
                 )}
             </div>
         </div>

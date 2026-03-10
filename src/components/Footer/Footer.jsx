@@ -6,19 +6,26 @@ const Footer = () => {
         <footer className="bg-white border-t border-gray-100 py-12 font-body">
             <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
 
-                {/* Brand & Newsletter */}
                 <div className="md:col-span-2 space-y-4">
-                    <h3 className="text-xl font-header font-bold tracking-widest">GEGE THE BRAND</h3>
-                    <p className="text-gray-500 text-sm">Suscríbete para recibir novedades y ofertas exclusivas.</p>
-                    <div className="relative max-w-sm">
-                        <input
-                            type="email"
-                            placeholder="tu@email.com"
-                            className="w-full pl-4 pr-12 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-all bg-secondary"
-                        />
-                        <button className="absolute right-1 top-1 bottom-1 px-4 bg-black text-white rounded text-sm hover:bg-gray-800 transition-colors">
-                            →
-                        </button>
+                    <h3 className="text-xl font-header font-bold tracking-widest uppercase">Encuéntranos</h3>
+                    <p className="text-gray-500 text-sm">Visita nuestra tienda para conocer nuestras colecciones exclusivas en persona.</p>
+                    <div className="relative w-full h-48 rounded-md overflow-hidden border border-gray-200 shadow-sm mt-4 group">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.810688825725!2d-77.01633532409825!3d-12.056557688181604!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c898c1995555%3A0xe54c15330aa180ea!2sJir%C3%B3n%20Agust%C3%ADn%20Gamarra%201043%2C%20La%20Victoria%2015018!5e0!3m2!1ses-419!2spe!4v1709923812000!5m2!1ses-419!2spe"
+                            width="100%" 
+                            height="100%" 
+                            style={{ border: 0 }} 
+                            allowFullScreen="" 
+                            loading="lazy" 
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="Nuestra Ubicación"
+                        ></iframe>
+                        {/* Address Overlay */}
+                        <div className="absolute bottom-4 left-4 right-4 md:right-auto bg-white/90 backdrop-blur-sm p-3 rounded shadow pointer-events-none border border-gray-100 transition-opacity group-hover:opacity-90">
+                            <p className="font-bold text-sm text-black">Agustín Gamarra 1043</p>
+                            <p className="text-xs text-gray-600">Centro Comercial YA - 2do piso tienda 42</p>
+                            <p className="text-xs text-gray-400 mt-1">La Victoria, Lima</p>
+                        </div>
                     </div>
                 </div>
 

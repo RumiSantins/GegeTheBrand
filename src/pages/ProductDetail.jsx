@@ -1,12 +1,14 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import { motion } from 'framer-motion';
 import { ChevronRight, Heart, Share2, Ruler } from 'lucide-react';
 
 const ProductDetail = () => {
     const { id } = useParams();
     const { addToCart } = useContext(CartContext);
+    const { toggleWishlist, isInWishlist } = useWishlist();
 
     const [selectedSize, setSelectedSize] = useState(null);
     const [selectedColor, setSelectedColor] = useState(null);
@@ -92,8 +94,31 @@ const ProductDetail = () => {
         addToCart(itemToAdd);
     };
 
+    const handleWishlistToggle = () => {
+        if (sizesArray.length > 0 && !selectedSize) {
+            alert('Por favor selecciona una talla para guardar en tu Wishlist');
+            return;
+        }
+        if (colorsArray.length > 0 && !selectedColor) {
+            alert('Por favor selecciona un color para guardar en tu Wishlist');
+            return;
+        }
+
+        const itemToSave = {
+            ...product,
+            image: imgs[0],
+            selectedSize,
+            selectedColor,
+            variant_id: currentVariant ? currentVariant.id : null,
+        };
+
+        toggleWishlist(itemToSave);
+    };
+
+    const isSavedInWishlist = isInWishlist(product.id, selectedSize, selectedColor);
+
     return (
-        <div className="pt-24 pb-24 bg-white min-h-screen">
+        <div className="pt-32 md:pt-40 pb-24 bg-white min-h-screen">
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-widest mb-8">
                     <Link to="/" className="hover:text-black">Home</Link>
@@ -128,7 +153,7 @@ const ProductDetail = () => {
                                 {product.name}
                             </h1>
                             <p className="text-xl text-gray-900 tracking-widest mb-8">
-                                ${product.price.toFixed(2)}
+                                S/ {product.price.toFixed(2)}
                             </p>
 
                             <div className="mb-8">
@@ -225,8 +250,16 @@ const ProductDetail = () => {
                                 </button>
 
                                 <div className="mt-4 flex gap-4">
-                                    <button className="flex-1 py-3 border border-gray-300 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest hover:border-black transition-colors">
-                                        <Heart size={14} /> Wishlist
+                                    <button 
+                                        onClick={handleWishlistToggle}
+                                        className={`flex-1 py-3 border flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest transition-colors ${
+                                            isSavedInWishlist 
+                                                ? 'border-red-500 text-red-500 bg-red-50 hover:bg-red-100' 
+                                                : 'border-gray-300 text-gray-800 hover:border-black'
+                                        }`}
+                                    >
+                                        <Heart size={14} className={isSavedInWishlist ? 'fill-current' : ''} /> 
+                                        {isSavedInWishlist ? 'Guardado' : 'Wishlist'}
                                     </button>
                                     <button className="flex-1 py-3 border border-gray-300 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest hover:border-black transition-colors">
                                         <Share2 size={14} /> Compartir

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import { WishlistProvider } from './context/WishlistContext';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import CartDrawer from './components/Cart/CartDrawer';
@@ -11,6 +12,7 @@ import WhatsAppBubble from './components/WhatsAppBubble/WhatsAppBubble';
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import OrderReceipt from './components/Admin/OrderReceipt';
+import Wishlist from './pages/Wishlist';
 
 const AppContent = () => {
   const location = useLocation();
@@ -27,6 +29,7 @@ const AppContent = () => {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/receipt/:id" element={<OrderReceipt />} />
+          <Route path="/wishlist" element={<Wishlist />} />
         </Routes>
       </main>
       {!isAdminRoute && <Footer />}
@@ -38,11 +41,13 @@ const AppContent = () => {
 function App() {
   return (
     <AuthProvider>
-      <CartProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </CartProvider>
+      <WishlistProvider>
+        <CartProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </CartProvider>
+      </WishlistProvider>
     </AuthProvider>
   );
 }

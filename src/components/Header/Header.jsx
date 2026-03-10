@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Search, User, Menu, X, Phone, Mail, Facebook, Instagram, Smartphone } from 'lucide-react';
+import { ShoppingBag, Search, User, Menu, X, Phone, Mail, Facebook, Instagram, Smartphone, Heart } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
-import { Link } from 'react-router-dom';
+import { useWishlist } from '../../context/WishlistContext';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import SearchModal from './SearchModal';
 
 const Header = () => {
     const { toggleCart, cartCount } = useCart();
+    const { wishlistCount } = useWishlist();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [scrolled, setScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isShopOpen, setIsShopOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [announcementText, setAnnouncementText] = useState("ENVÍO GRATIS EN COMPRAS MAYORES A $150  •  NUEVA COLECCIÓN DISPONIBLE  •  DESCUENTOS EXCLUSIVOS PARA MIEMBROS");
+    const [announcementText, setAnnouncementText] = useState("ENVÍO GRATIS EN COMPRAS MAYORES A S/ 150  •  NUEVA COLECCIÓN DISPONIBLE  •  DESCUENTOS EXCLUSIVOS PARA MIEMBROS");
 
     const [categories, setCategories] = useState([]);
 
@@ -57,6 +61,24 @@ const Header = () => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Effect to handle scrolling when navigating back from other pages
+    useEffect(() => {
+        if (location.pathname === '/' && location.hash) {
+            setTimeout(() => {
+                const id = location.hash.replace('#', '');
+                const el = document.getElementById(id);
+                if (el) {
+                    const headerOffset = 100;
+                    const elementPosition = el.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                }
+            }, 100);
+        } else if (location.pathname === '/' && !location.hash) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [location]);
 
     // Prevent body scroll when mobile menu is open
     useEffect(() => {
@@ -130,15 +152,19 @@ const Header = () => {
                         <button
                             key={item.name}
                             onClick={() => {
-                                if (!item.target) {
-                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                if (location.pathname !== '/') {
+                                    navigate(item.target ? `/#${item.target}` : '/');
                                 } else {
-                                    const el = document.getElementById(item.target);
-                                    if (el) {
-                                        const headerOffset = 100;
-                                        const elementPosition = el.getBoundingClientRect().top;
-                                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                                        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                                    if (!item.target) {
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    } else {
+                                        const el = document.getElementById(item.target);
+                                        if (el) {
+                                            const headerOffset = 100;
+                                            const elementPosition = el.getBoundingClientRect().top;
+                                            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                                            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                                        }
                                     }
                                 }
                             }}
@@ -156,6 +182,14 @@ const Header = () => {
                         className="hidden md:block w-[1.32rem] h-[1.32rem] hover:text-purple-600 cursor-pointer transition-colors"
                         onClick={() => setIsSearchOpen(true)}
                     />
+                    <Link to="/wishlist" className="relative cursor-pointer group">
+                        <Heart className="w-[1.32rem] h-[1.32rem] hover:text-red-500 transition-colors group-hover:scale-110 duration-200" />
+                        {wishlistCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-gradient-to-r from-red-400 to-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-bounce">
+                                {wishlistCount}
+                            </span>
+                        )}
+                    </Link>
                     <div className="relative cursor-pointer group" onClick={toggleCart}>
                         <ShoppingBag className="w-[1.32rem] h-[1.32rem] hover:text-purple-600 transition-colors group-hover:scale-110 duration-200" />
                         {cartCount > 0 && (
