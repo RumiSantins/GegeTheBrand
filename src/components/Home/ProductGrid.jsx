@@ -80,7 +80,11 @@ const ProductGrid = () => {
 
     const handleCategorySelect = (category) => {
         setActiveFilter(category);
-        setSearchParams({ category });
+        // Update URL without triggering React Router navigation (which scrolls to top)
+        const newUrl = category === 'All'
+            ? window.location.pathname
+            : `${window.location.pathname}?category=${encodeURIComponent(category)}`;
+        window.history.replaceState(null, '', newUrl);
     };
 
     const filteredProducts = activeFilter === 'All'
