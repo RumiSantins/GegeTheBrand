@@ -80,7 +80,6 @@ const AdminDashboard = () => {
             fetchHeroSlides();
         }
     }, [token, navigate]);
-
     const handleDelete = async (id) => {
         if (window.confirm("¿Seguro que deseas eliminar este producto?")) {
             try {

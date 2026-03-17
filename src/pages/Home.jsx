@@ -6,7 +6,10 @@ import StyleEditorial from '../components/Home/StyleEditorial';
 
 const Home = () => {
     useEffect(() => {
-        window.scrollTo(0, 0);
+        // Only scroll to top if there's no hash (let Header handle hash navigation smoothly)
+        if (!window.location.hash) {
+            window.scrollTo(0, 0);
+        }
     }, []);
 
     return (

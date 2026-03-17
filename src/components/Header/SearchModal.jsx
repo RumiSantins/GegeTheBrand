@@ -93,10 +93,10 @@ const SearchModal = ({ isOpen, onClose, categories = [] }) => {
                         animate={{ y: 0 }}
                         exit={{ y: '-100%' }}
                         transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-                        className="fixed top-0 left-0 w-full bg-white z-[110] shadow-2xl h-auto max-h-[85vh] flex flex-col pt-safe-top"
+                        className="fixed top-0 left-0 w-full bg-white dark:bg-[#07020f] z-[110] shadow-2xl h-auto max-h-[85vh] flex flex-col pt-safe-top"
                     >
                         {/* Search Input Area */}
-                        <div className="container mx-auto px-6 py-6 border-b border-gray-100 flex items-center relative gap-4">
+                        <div className="container mx-auto px-6 py-6 border-b border-gray-100 dark:border-[#1a0e30] flex items-center relative gap-4">
                             <Search className="w-6 h-6 text-gray-400" />
                             <input
                                 ref={inputRef}
@@ -104,18 +104,18 @@ const SearchModal = ({ isOpen, onClose, categories = [] }) => {
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 placeholder="¿Qué estás buscando?"
-                                className="w-full text-xl md:text-3xl font-header outline-none border-none bg-transparent placeholder-gray-300 uppercase tracking-widest text-black"
+                                className="w-full text-xl md:text-3xl font-header outline-none border-none bg-transparent placeholder-gray-300 dark:placeholder-gray-500 uppercase tracking-widest text-black dark:text-white"
                             />
                             <button
                                 onClick={onClose}
-                                className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-purple-900/20 rounded-full transition-colors flex-shrink-0"
                             >
                                 <X className="w-6 h-6 text-gray-500" />
                             </button>
                         </div>
 
                         {/* Results Area */}
-                        <div className="flex-1 overflow-y-auto bg-gray-50/50">
+                        <div className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-[#110620]/50">
                             {query.trim().length > 0 && (
                                 <div className="container mx-auto px-6 py-8">
                                     <div className="flex justify-between items-end mb-6">
@@ -144,9 +144,9 @@ const SearchModal = ({ isOpen, onClose, categories = [] }) => {
                                                         key={product.id}
                                                         to={`/product/${product.id}`}
                                                         onClick={handleResultClick}
-                                                        className="group flex flex-col rounded bg-white p-3 shadow-sm hover:shadow-md transition-shadow"
+                                                        className="group flex flex-col rounded bg-white dark:bg-[#110620] p-3 shadow-sm hover:shadow-md transition-shadow"
                                                     >
-                                                        <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-3 relative">
+                                                        <div className="aspect-[3/4] bg-gray-100 dark:bg-[#1a0e30] rounded overflow-hidden mb-3 relative">
                                                             {mainImage ? (
                                                                 <img
                                                                     src={mainImage}
@@ -157,10 +157,10 @@ const SearchModal = ({ isOpen, onClose, categories = [] }) => {
                                                                 <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">Sin foto</div>
                                                             )}
                                                         </div>
-                                                        <span className="text-xs font-bold font-header uppercase tracking-wider line-clamp-2 leading-tight group-hover:text-purple-600 transition-colors">
+                                                        <span className="text-xs font-bold font-header uppercase tracking-wider line-clamp-2 leading-tight group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors dark:text-gray-200">
                                                             {product.name}
                                                         </span>
-                                                        <span className="text-xs text-gray-600 mt-1 font-medium">
+                                                        <span className="text-xs text-gray-600 dark:text-gray-400 mt-1 font-medium">
                                                             S/ {product.price.toFixed(2)}
                                                         </span>
                                                     </Link>
@@ -210,14 +210,14 @@ const SearchModal = ({ isOpen, onClose, categories = [] }) => {
                                                         }}
                                                         className="flex-shrink-0 w-40 md:w-48 group snap-start flex flex-col"
                                                     >
-                                                        <div className="relative w-full aspect-[4/5] bg-gray-100 overflow-hidden mb-3 rounded-sm shadow-sm transition-shadow duration-300 group-hover:shadow-md">
+                                                        <div className="relative w-full aspect-[4/5] bg-gray-100 dark:bg-[#110620] overflow-hidden mb-3 rounded-sm shadow-sm transition-shadow duration-300 group-hover:shadow-md">
                                                             <img
                                                                 src={resolveImageUrl(cat.image_url)}
                                                                 alt={cat.name}
                                                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
                                                             />
                                                         </div>
-                                                        <span className="text-gray-900 font-serif text-[11px] md:text-xs tracking-widest uppercase leading-snug px-1 text-center line-clamp-2 group-hover:text-purple-600 transition-colors">
+                                                        <span className="text-gray-900 dark:text-gray-300 font-serif text-[11px] md:text-xs tracking-widest uppercase leading-snug px-1 text-center line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                                                             {cat.name}
                                                         </span>
                                                     </Link>

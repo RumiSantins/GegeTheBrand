@@ -10,7 +10,7 @@ const OrderReceipt = () => {
     useEffect(() => {
         const fetchOrder = async () => {
             try {
-                const token = localStorage.getItem('adminToken');
+                const token = localStorage.getItem('admin_token');
                 const res = await fetch(`http://localhost:8080/admin/orders/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -106,10 +106,29 @@ const OrderReceipt = () => {
                     </table>
                 </div>
 
-                {/* Totals */}
-                <div className="flex justify-between items-center text-xl font-bold uppercase tracking-widest mb-8">
-                    <span>Total</span>
-                    <span>S/ {order.total_amount.toFixed(2)}</span>
+                {/* Totals and Payment */}
+                <div className="space-y-2 mb-8 uppercase text-sm">
+                    <div className="flex justify-between items-center text-xl font-bold tracking-widest pt-2">
+                        <span>Total</span>
+                        <span>S/ {order.total_amount.toFixed(2)}</span>
+                    </div>
+                    
+                    <div className="border-t border-gray-200 pt-4 space-y-1">
+                        <div className="flex justify-between">
+                            <span className="font-bold">Método de Pago:</span>
+                            <span>{order.payment_method || 'Efectivo'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="font-bold">Monto Recibido:</span>
+                            <span>S/ {(order.amount_paid || 0).toFixed(2)}</span>
+                        </div>
+                        {(order.payment_method === 'Efectivo' || !order.payment_method) && (
+                            <div className="flex justify-between text-base font-bold bg-gray-50 p-2 mt-2">
+                                <span>Vuelto:</span>
+                                <span>S/ {Math.max(0, (order.amount_paid || 0) - order.total_amount).toFixed(2)}</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Footer */}

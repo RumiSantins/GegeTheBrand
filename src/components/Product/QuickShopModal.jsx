@@ -1,11 +1,13 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Minus } from 'lucide-react';
+import { X, Plus, Minus, Heart } from 'lucide-react';
 import { CartContext } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 import { Link } from 'react-router-dom';
 
 const QuickShopModal = ({ isOpen, onClose, product }) => {
     const { addToCart } = useContext(CartContext);
+    const { addToWishlist, removeFromWishlist, wishlistItems } = useWishlist();
     const [selectedSize, setSelectedSize] = useState(null);
     const [selectedColor, setSelectedColor] = useState(null);
     const [quantity, setQuantity] = useState(1);
@@ -82,13 +84,13 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.98, y: 10 }}
                             transition={{ duration: 0.2, ease: "easeOut" }}
-                            className="bg-white w-full max-w-3xl max-h-full overflow-y-auto shadow-2xl pointer-events-auto rounded-lg flex flex-col relative"
+                            className="bg-white dark:bg-[#07020f] text-black dark:text-white w-full max-w-3xl max-h-full overflow-y-auto shadow-2xl pointer-events-auto rounded-lg flex flex-col relative"
                             onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
                         >
                             {/* Header */}
-                            <div className="flex justify-between items-center p-6 border-b border-gray-100 sticky top-0 bg-white z-10">
+                            <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white dark:bg-[#07020f] z-10">
                                 <h2 className="font-header font-bold text-lg">Tienda rápida</h2>
-                                <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                                <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
                                     <X size={20} />
                                 </button>
                             </div>
@@ -190,10 +192,10 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
                                                             onClick={() => setSelectedSize(size)}
                                                             disabled={!hasStockForSize}
                                                             className={`w-12 h-12 flex items-center justify-center border text-xs font-bold transition-all rounded-full ${!hasStockForSize
-                                                                ? 'border-gray-200 text-gray-300 cursor-not-allowed line-through'
+                                                                ? 'border-gray-200 dark:border-gray-800 text-gray-300 dark:text-gray-700 cursor-not-allowed line-through'
                                                                 : selectedSize === size
-                                                                    ? 'border-black bg-black text-white'
-                                                                    : 'border-gray-300 text-gray-600 hover:border-black'
+                                                                    ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black'
+                                                                    : 'border-gray-300 dark:border-gray-500 text-gray-600 dark:text-gray-200 hover:border-black dark:hover:border-white'
                                                                 }`}
                                                         >
                                                             {size}
@@ -205,27 +207,62 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
                                     )}
 
                                     {/* Actions bottom fixed inside right col */}
-                                    <div className="mt-auto pt-6 flex flex-col sm:flex-row gap-4 border-t border-gray-100">
-                                        <div className="flex items-center justify-between border border-gray-300 rounded-full px-4 py-2 w-full sm:w-1/3">
-                                            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-gray-500 hover:text-black transition">
-                                                <Minus size={16} />
-                                            </button>
-                                            <span className="text-sm font-bold w-8 text-center">{quantity}</span>
-                                            <button onClick={() => setQuantity(quantity + 1)} className="text-gray-500 hover:text-black transition">
-                                                <Plus size={16} />
+                                    <div className="mt-auto pt-6 flex flex-col gap-4 border-t border-gray-100">
+                                        <div className="flex flex-row gap-3">
+                                            <div className="flex items-center justify-between border border-gray-300 rounded-full px-4 py-2 w-1/3">
+                                                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-gray-500 hover:text-black transition">
+                                                    <Minus size={16} />
+                                                </button>
+                                                <span className="text-sm font-bold w-8 text-center">{quantity}</span>
+                                                <button onClick={() => setQuantity(quantity + 1)} className="text-gray-500 hover:text-black transition">
+                                                    <Plus size={16} />
+                                                </button>
+                                            </div>
+
+                                            <button
+                                                onClick={handleAddToCart}
+                                                disabled={isAddToCartDisabled}
+                                                className={`flex-1 py-3 rounded-full text-sm font-bold uppercase tracking-widest transition-colors ${isAddToCartDisabled
+                                                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                                    : 'bg-black text-white hover:bg-gray-800 shadow-lg'
+                                                    }`}
+                                            >
+                                                {totalStock === 0 ? 'Agotado' : isAddToCartDisabled ? 'Seleccionar variante' : 'Añadir al carrito'}
                                             </button>
                                         </div>
 
-                                        <button
-                                            onClick={handleAddToCart}
-                                            disabled={isAddToCartDisabled}
-                                            className={`w-full sm:w-2/3 py-3 rounded-full text-sm font-bold uppercase tracking-widest transition-colors ${isAddToCartDisabled
-                                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                                : 'bg-black text-white hover:bg-gray-800 shadow-lg'
-                                                }`}
-                                        >
-                                            {totalStock === 0 ? 'Agotado' : isAddToCartDisabled ? 'Seleccionar variante' : 'Añadir al carrito'}
-                                        </button>
+                                        {(() => {
+                                            const isInWishlist = selectedSize && selectedColor && wishlistItems.some(
+                                                w => w.id === product.id && w.selectedSize === selectedSize && w.selectedColor === selectedColor
+                                            );
+                                            return (
+                                                <button
+                                                    onClick={() => {
+                                                        if (!selectedSize && sizesArray.length > 0) { alert('Selecciona una talla primero'); return; }
+                                                        if (!selectedColor && colorsArray.length > 0) { alert('Selecciona un color primero'); return; }
+                                                        if (isInWishlist) {
+                                                            removeFromWishlist(product.id, selectedSize, selectedColor);
+                                                        } else {
+                                                            addToWishlist({
+                                                                ...product,
+                                                                image: mainImage,
+                                                                selectedSize,
+                                                                selectedColor,
+                                                                quantity,
+                                                            });
+                                                        }
+                                                    }}
+                                                    className={`w-full py-3 rounded-full text-sm font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 border ${
+                                                        isInWishlist
+                                                            ? 'border-red-500 text-red-500 bg-red-50 hover:bg-red-100'
+                                                            : 'border-gray-300 text-gray-600 hover:border-black hover:text-black'
+                                                    }`}
+                                                >
+                                                    <Heart size={16} className={isInWishlist ? 'fill-current' : ''} />
+                                                    {isInWishlist ? 'En tu Wishlist' : 'Añadir a Wishlist'}
+                                                </button>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             </div>

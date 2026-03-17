@@ -57,9 +57,22 @@ const ProductGrid = () => {
     };
 
     useEffect(() => {
-        fetchProducts();
-        fetchCategories();
-        fetchSettings();
+        const loadInitialData = async () => {
+            await Promise.all([fetchProducts(), fetchCategories(), fetchSettings()]);
+            
+            // If the user arrived here via a hash link like #shop, 
+            // trigger a refined scroll once data is ready to prevent layout shift errors
+            if (window.location.hash === '#shop') {
+                setTimeout(() => {
+                    const shopSection = document.getElementById('shop');
+                    if (shopSection && window.lenis) {
+                        window.lenis.scrollTo(shopSection, { offset: -140, duration: 1.2 });
+                    }
+                }, 500);
+            }
+        };
+
+        loadInitialData();
     }, []);
 
     // Sync activeFilter when URL search parameter changes externally
@@ -85,6 +98,12 @@ const ProductGrid = () => {
             ? window.location.pathname
             : `${window.location.pathname}?category=${encodeURIComponent(category)}`;
         window.history.replaceState(null, '', newUrl);
+
+        // Smooth scroll to top of shop section to show results correctly
+        const shopSection = document.getElementById('shop');
+        if (shopSection && window.lenis) {
+            window.lenis.scrollTo(shopSection, { offset: -140, duration: 0.8 });
+        }
     };
 
     const filteredProducts = activeFilter === 'All'
@@ -92,13 +111,14 @@ const ProductGrid = () => {
         : products.filter(p => p.category?.toLowerCase() === activeFilter.toLowerCase());
 
     return (
-        <section id="shop" className="py-24 max-w-7xl mx-auto overflow-hidden">
+        <section id="shop" className="py-40 max-w-full w-full overflow-hidden bg-transparent dark:bg-[#07020f] transition-colors duration-500">
+            <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8 px-6 md:px-12">
                 <div>
                     <h2 className="text-3xl md:text-5xl font-header font-bold uppercase tracking-tighter mb-4">
                         {settings?.shop_title || 'Tienda'}
                     </h2>
-                    <p className="text-gray-500 max-w-md text-sm leading-relaxed">
+                    <p className="text-gray-500 dark:text-gray-400 max-w-md text-sm leading-relaxed">
                         {settings?.shop_description || 'Descubre nuestra última colección. Piezas diseñadas con atención al detalle y materiales de primera calidad.'}
                     </p>
                 </div>
@@ -109,8 +129,8 @@ const ProductGrid = () => {
                             key={category}
                             onClick={() => handleCategorySelect(category)}
                             className={`text-xs font-bold uppercase tracking-widest pb-1 border-b-2 whitespace-nowrap transition-all duration-300 ${activeFilter === category
-                                ? 'border-black text-black'
-                                : 'border-transparent text-gray-400 hover:text-black'
+                                ? 'border-black dark:border-white text-black dark:text-white'
+                                : 'border-transparent text-gray-400 hover:text-black dark:hover:text-white'
                                 }`}
                         >
                             {category}
@@ -151,6 +171,7 @@ const ProductGrid = () => {
                 onClose={() => setQuickShopProduct(null)}
                 product={quickShopProduct}
             />
+            </div>
         </section>
     );
 };

@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import Lenis from 'lenis';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { WishlistProvider } from './context/WishlistContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import CartDrawer from './components/Cart/CartDrawer';
@@ -13,13 +15,86 @@ import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import OrderReceipt from './components/Admin/OrderReceipt';
 import Wishlist from './pages/Wishlist';
+import SharedWishlist from './pages/SharedWishlist';
 
 const AppContent = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
 
+  useEffect(() => {
+    // Initialize Lenis for buttery smooth scrolling
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // https://www.desmos.com/calculator/brs54l4xou
+      direction: 'vertical',
+      gestureDirection: 'vertical',
+      smooth: true,
+      mouseMultiplier: 1,
+      smoothTouch: false,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    // Make lenis globally available so Header.jsx can use lenis.scrollTo
+    window.lenis = lenis;
+
+    return () => {
+      lenis.destroy();
+      window.lenis = null;
+    };
+  }, []);
+
+  // Handle cross-page hash navigation and scroll-to-top
+  useEffect(() => {
+    // If we are on the homepage
+    if (location.pathname === '/') {
+      if (location.hash) {
+        // Scroll to specific section
+        const scrollToElement = (retryCount = 0) => {
+          const id = location.hash.replace('#', '');
+          const el = document.getElementById(id);
+          
+          if (el) {
+            // Give extra frame for layout to settle
+            requestAnimationFrame(() => {
+              if (window.lenis) {
+                // Landing at -140 looks cleaner with the fixed header and section padding
+                window.lenis.scrollTo(el, { offset: -140, duration: 1.5 });
+              } else {
+                const headerOffset = 140;
+                const elementPosition = el.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+              }
+            });
+          } else if (retryCount < 10) {
+            // Be more persistent (up to 1 second)
+            setTimeout(() => scrollToElement(retryCount + 1), 100);
+          }
+        };
+
+        // Start checking after a small initial delay
+        setTimeout(() => scrollToElement(0), 100);
+      } else {
+        // Scroll to top of homepage when no hash
+        if (window.lenis) {
+          window.lenis.scrollTo(0, { duration: 1.2 });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+    }
+  }, [location.pathname, location.hash]);
+
   return (
-    <div className="flex flex-col min-h-screen bg-secondary font-body text-primary">
+    <div className={`flex flex-col min-h-screen font-body transition-colors duration-500 ${!isAdminRoute ? 'bg-secondary dark:bg-[#07020f] text-primary dark:text-gray-100' : 'bg-gray-50 text-primary'}`}>
       {!isAdminRoute && <Header />}
       {!isAdminRoute && <CartDrawer />}
       <main className="flex-grow">
@@ -30,6 +105,7 @@ const AppContent = () => {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/receipt/:id" element={<OrderReceipt />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/wishlist/shared" element={<SharedWishlist />} />
         </Routes>
       </main>
       {!isAdminRoute && <Footer />}
@@ -40,15 +116,17 @@ const AppContent = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <WishlistProvider>
-        <CartProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </CartProvider>
-      </WishlistProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <WishlistProvider>
+          <CartProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </CartProvider>
+        </WishlistProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

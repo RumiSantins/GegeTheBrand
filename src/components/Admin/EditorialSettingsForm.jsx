@@ -23,7 +23,8 @@ const EditorialSettingsForm = () => {
         image_main_url: "",
         image_3_url: "",
         image_4_url: "",
-        image_5_url: ""
+        image_5_url: "",
+        button_url: ""
     });
 
     const [files, setFiles] = useState({
@@ -54,7 +55,8 @@ const EditorialSettingsForm = () => {
                     image_main_url: data.image_main_url || "",
                     image_3_url: data.image_3_url || "",
                     image_4_url: data.image_4_url || "",
-                    image_5_url: data.image_5_url || ""
+                    image_5_url: data.image_5_url || "",
+                    button_url: data.button_url || ""
                 });
             }
         } catch (err) {
@@ -188,6 +190,11 @@ const EditorialSettingsForm = () => {
                         <div>
                             <label className="block text-xs font-bold uppercase mb-1">Descripción Corta</label>
                             <textarea name="description" value={formData.description} onChange={handleChange} rows="3" className="w-full border border-gray-300 rounded p-2 text-sm focus:outline-none focus:border-black" placeholder="Ej. Redefiniendo la feminidad..." />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold uppercase mb-1 text-purple-600">Link del Botón (Ver Colección)</label>
+                            <input type="text" name="button_url" value={formData.button_url} onChange={handleChange} className="w-full border border-purple-200 rounded p-2 text-sm focus:outline-none focus:border-purple-600" placeholder="Ej. /tienda o /#shop" />
                         </div>
                     </div>
 

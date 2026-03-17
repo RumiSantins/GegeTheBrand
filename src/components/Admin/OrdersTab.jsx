@@ -11,7 +11,23 @@ const OrdersTab = () => {
     const [editingOrder, setEditingOrder] = useState(null);
     const [editFormData, setEditFormData] = useState({
         customer_info: '',
-        items: []
+        items: [],
+        amount_paid: 0,
+        payment_method: 'Efectivo'
+    });
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState('Todos');
+
+    const filteredOrders = orders.filter(order => {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch = 
+            order.order_number.toLowerCase().includes(query) ||
+            order.items.some(item => item.product_name.toLowerCase().includes(query));
+        
+        const matchesStatus = statusFilter === 'Todos' || order.status === statusFilter;
+        
+        return matchesSearch && matchesStatus;
     });
 
     const fetchOrders = async () => {
@@ -92,13 +108,15 @@ const OrdersTab = () => {
         setEditingOrder(order);
         setEditFormData({
             customer_info: order.customer_info,
-            items: order.items.map(item => ({ ...item }))
+            items: order.items.map(item => ({ ...item })),
+            amount_paid: order.amount_paid || 0,
+            payment_method: order.payment_method || 'Efectivo'
         });
     };
 
     const handleCancelEdit = () => {
         setEditingOrder(null);
-        setEditFormData({ customer_info: '', items: [] });
+        setEditFormData({ customer_info: '', items: [], amount_paid: 0, payment_method: 'Efectivo' });
     };
 
     const handleItemQuantityChange = (index, newQuantity) => {
@@ -196,15 +214,35 @@ const OrdersTab = () => {
 
     return (
         <div className="bg-white shadow rounded-lg overflow-hidden border">
-            <div className="p-4 border-b bg-gray-100 flex justify-between items-center">
-                <h2 className="font-header font-bold uppercase">Gestión de Pedidos</h2>
+            <div className="p-4 border-b bg-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h2 className="font-header font-bold uppercase min-w-max">Gestión de Pedidos</h2>
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <input 
+                        type="text" 
+                        placeholder="Buscar por orden o producto..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black w-full sm:w-64"
+                    />
+                    <select 
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                    >
+                        <option value="Todos">Todos los estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Completada">Completada</option>
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="Devuelta">Devuelta</option>
+                    </select>
+                </div>
             </div>
             <div className="overflow-x-auto p-4">
                 <div className="space-y-6">
-                    {orders.length === 0 && (
-                        <p className="text-center text-gray-500 italic py-8">No hay pedidos registrados.</p>
+                    {filteredOrders.length === 0 && (
+                        <p className="text-center text-gray-500 italic py-8">No se encontraron pedidos que coincidan con la búsqueda.</p>
                     )}
-                    {orders.map(order => (
+                    {filteredOrders.map(order => (
                         <div key={order.id} className="border rounded-lg p-4 bg-gray-50 shadow-sm relative group">
                             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition">
                                 {order.status === 'Completada' && (
@@ -226,6 +264,11 @@ const OrdersTab = () => {
                                     <div className="text-right">
                                         <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Total</p>
                                         <p className="font-bold text-xl">S/ {order.total_amount.toFixed(2)}</p>
+                                    </div>
+                                    <div className="text-right border-l pl-4">
+                                        <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Pago</p>
+                                        <p className="font-bold text-sm">{order.payment_method}</p>
+                                        <p className="text-xs text-gray-500">Recibido: S/ {order.amount_paid ? order.amount_paid.toFixed(2) : '0.00'}</p>
                                     </div>
                                     <div className="border-l pl-4">
                                         <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Estado</p>
@@ -284,14 +327,50 @@ const OrdersTab = () => {
                         </div>
 
                         <div className="p-6 overflow-y-auto flex-1 space-y-6">
-                            <div>
-                                <label className="block text-xs font-bold uppercase mb-2 text-gray-500">Información del Cliente / Notas</label>
-                                <textarea
-                                    value={editFormData.customer_info}
-                                    onChange={(e) => setEditFormData({ ...editFormData, customer_info: e.target.value })}
-                                    rows="3"
-                                    className="w-full border rounded p-3 text-sm focus:outline-none focus:ring-1 focus:ring-black"
-                                />
+                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase mb-2 text-gray-500">Información del Cliente / Notas</label>
+                                    <textarea
+                                        value={editFormData.customer_info}
+                                        onChange={(e) => setEditFormData({ ...editFormData, customer_info: e.target.value })}
+                                        rows="3"
+                                        className="w-full border rounded p-3 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                                    />
+                                </div>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase mb-2 text-gray-500">Método de Pago</label>
+                                        <select
+                                            value={editFormData.payment_method}
+                                            onChange={(e) => setEditFormData({ ...editFormData, payment_method: e.target.value })}
+                                            className="w-full border rounded p-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                                        >
+                                            <option value="Efectivo">Efectivo 💵</option>
+                                            <option value="Transferencia">Transferencia 🏦</option>
+                                            <option value="Yape">Yape 📱</option>
+                                            <option value="Plin">Plin 📱</option>
+                                            <option value="Tarjeta">Tarjeta 💳</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase mb-2 text-gray-500">Monto Pagado por el Cliente (S/)</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={editFormData.amount_paid}
+                                            onChange={(e) => setEditFormData({ ...editFormData, amount_paid: parseFloat(e.target.value) || 0 })}
+                                            className="w-full border rounded p-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+                                        />
+                                        {editFormData.payment_method === 'Efectivo' && (
+                                            <div className="mt-2 p-2 bg-yellow-50 border border-yellow-100 rounded flex justify-between items-center">
+                                                <span className="text-xs font-bold uppercase text-yellow-700">Vuelto para el Cliente:</span>
+                                                <span className="font-bold text-yellow-900">
+                                                    S/ {Math.max(0, editFormData.amount_paid - editFormData.items.reduce((total, item) => total + (item.price_at_time * item.quantity), 0)).toFixed(2)}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
 
                             <div>

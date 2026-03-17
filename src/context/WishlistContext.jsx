@@ -47,6 +47,16 @@ export const WishlistProvider = ({ children }) => {
         return wishlistItems.some(w => w.id === id && w.selectedSize === size && w.selectedColor === color);
     };
 
+    const updateWishlistQuantity = (id, size, color, quantity) => {
+        setWishlistItems(prev =>
+            prev.map(w =>
+                w.id === id && w.selectedSize === size && w.selectedColor === color
+                    ? { ...w, quantity }
+                    : w
+            )
+        );
+    };
+
     const toggleWishlist = (item) => {
         if (isInWishlist(item.id, item.selectedSize, item.selectedColor)) {
             removeFromWishlist(item.id, item.selectedSize, item.selectedColor);
@@ -66,6 +76,7 @@ export const WishlistProvider = ({ children }) => {
             removeFromWishlist,
             isInWishlist,
             toggleWishlist,
+            updateWishlistQuantity,
             wishlistCount
         }}>
             {children}

@@ -42,10 +42,10 @@ const HeroSlider = () => {
         }
     };
 
-    if (slides.length === 0) return <div className="h-[80vh] w-full bg-gray-900 flex items-center justify-center text-white">Cargando...</div>;
+    if (slides.length === 0) return <div className="h-[80vh] w-full bg-[#07020f] flex items-center justify-center text-white transition-colors duration-500">Cargando...</div>;
 
     return (
-        <div className="relative h-[80vh] w-full overflow-hidden bg-gray-900 text-white">
+        <div className="relative h-[80vh] w-full overflow-hidden bg-[#07020f] text-white">
             <AnimatePresence mode='wait'>
                 <motion.div
                     key={currentSlide}
@@ -60,7 +60,7 @@ const HeroSlider = () => {
                         className="absolute inset-0 bg-cover bg-center"
                         style={{ backgroundImage: `url('${resolveImageUrl(slides[currentSlide].image_url)}')` }}
                     >
-                        <div className="absolute inset-0 bg-black/30" /> {/* Overlay */}
+                        <div className="absolute inset-0 bg-purple-900/10 dark:bg-[#07020f]/40" /> {/* Purple-tinted Overlay */}
                     </div>
 
                     {/* Content */}

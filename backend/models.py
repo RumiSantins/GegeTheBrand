@@ -42,6 +42,7 @@ class EditorialSettings(SQLModel, table=True):
     quote_author: str = Field(default="Audrey Hepburn")
     look_name: str = Field(default="Conjunto Minimal Seda")
     look_price: str = Field(default="S/ 185")
+    button_url: str = Field(default="/#shop")
     image_1_url: str = Field(default="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop")
     image_2_url: str = Field(default="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1976&auto=format&fit=crop")
     image_main_url: str = Field(default="https://images.unsplash.com/photo-1549062572-544a64fb0c56?q=80&w=1974&auto=format&fit=crop")
@@ -88,6 +89,8 @@ class Order(SQLModel, table=True):
     order_number: str = Field(index=True)  # Like a short reference
     customer_info: str  # Could store basic stringified info if needed, or leave it mostly for whatsapp parsing
     total_amount: float
+    amount_paid: float = Field(default=0.0)
+    payment_method: str = Field(default="Efectivo")
     status: str = Field(default="Pendiente") # Pendiente, Completada, Cancelada, Devuelta
     created_at: str # Simple ISO string timestamp
     

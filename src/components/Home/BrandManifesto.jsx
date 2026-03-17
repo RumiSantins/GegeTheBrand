@@ -5,10 +5,26 @@ const BrandManifesto = () => {
     const [manifesto, setManifesto] = useState(null);
 
     useEffect(() => {
-        fetch('http://localhost:8080/manifesto')
-            .then(res => res.json())
-            .then(data => setManifesto(data))
-            .catch(err => console.error("Error fetching manifesto:", err));
+        const loadData = async () => {
+            try {
+                const res = await fetch('http://localhost:8080/manifesto');
+                const data = await res.json();
+                setManifesto(data);
+
+                // Handle precision scroll if this is the target section
+                if (window.location.hash === '#nosotros') {
+                    setTimeout(() => {
+                        const section = document.getElementById('nosotros');
+                        if (section && window.lenis) {
+                            window.lenis.scrollTo(section, { offset: -140, duration: 1.2 });
+                        }
+                    }, 500);
+                }
+            } catch (err) {
+                console.error("Error fetching manifesto:", err);
+            }
+        };
+        loadData();
     }, []);
 
     const resolveImageUrl = (url) => {
@@ -26,12 +42,14 @@ const BrandManifesto = () => {
     const y2 = useTransform(scrollYProgress, [0, 1], [-50, 150]);
     const opacity = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [0, 1, 1, 0]);
 
+    if (!manifesto) return <section id="nosotros" className="py-44 md:py-60 bg-white dark:bg-black min-h-[40vh] flex items-center justify-center text-gray-300 dark:text-gray-800 uppercase tracking-[0.3em] text-[10px] font-bold">Cargando...</section>;
+
     return (
-        <section id="nosotros" className="relative py-32 md:py-48 overflow-hidden bg-white">
+        <section id="nosotros" className="relative py-44 md:py-60 overflow-hidden bg-white dark:bg-black">
             {/* Soft Background Decorative Elements */}
             <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none select-none">
-                <div className="absolute top-10 left-10 text-[10rem] font-serif italic text-black leading-none">{manifesto?.bg_text_1 || 'GEGE'}</div>
-                <div className="absolute bottom-10 right-10 text-[10rem] font-serif italic text-black leading-none whitespace-nowrap">{manifesto?.bg_text_2 || 'THE BRAND'}</div>
+                <div className="absolute top-10 left-10 text-[10rem] font-serif italic text-black dark:text-white leading-none">{manifesto?.bg_text_1 || 'GEGE'}</div>
+                <div className="absolute bottom-10 right-10 text-[10rem] font-serif italic text-black dark:text-white leading-none whitespace-nowrap">{manifesto?.bg_text_2 || 'THE BRAND'}</div>
             </div>
 
             <div className="container mx-auto px-6 relative z-10">
@@ -39,7 +57,7 @@ const BrandManifesto = () => {
 
                     {/* Floating Decorative Images (Desktop only for precision) */}
                     <motion.div
-                        style={{ y: y1, opacity }}
+                        style={{ y: y1, opacity, willChange: "transform, opacity" }}
                         className="absolute -left-20 top-20 w-72 aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-2xl hidden xl:block"
                     >
                         <img
@@ -50,7 +68,7 @@ const BrandManifesto = () => {
                     </motion.div>
 
                     <motion.div
-                        style={{ y: y2, opacity }}
+                        style={{ y: y2, opacity, willChange: "transform, opacity" }}
                         className="absolute -right-20 top-40 w-80 aspect-[4/5] rounded-full overflow-hidden shadow-2xl hidden xl:block"
                     >
                         <img
@@ -82,7 +100,7 @@ const BrandManifesto = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8, delay: 0.2 }}
-                            className="text-5xl md:text-8xl font-serif font-bold text-black mb-12 leading-[1.1] tracking-tighter"
+                            className="text-5xl md:text-8xl font-serif font-bold text-black dark:text-white mb-12 leading-[1.1] tracking-tighter"
                         >
                             {manifesto?.title_line1 || 'Diseñamos para la'} <br />
                             <span className="inline-block pr-6 italic text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 py-2">
@@ -92,7 +110,7 @@ const BrandManifesto = () => {
                         </motion.h2>
 
                         {/* Principles Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mt-16 border-t border-gray-100 pt-16">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mt-16 border-t border-gray-100 dark:border-gray-800 pt-16">
                             {[
                                 { title: manifesto?.principle_1_title || "Elegancia", desc: manifesto?.principle_1_desc || "La belleza en la simplicidad." },
                                 { title: manifesto?.principle_2_title || "Autenticidad", desc: manifesto?.principle_2_desc || "Viste tu verdad cada día." },
@@ -119,7 +137,7 @@ const BrandManifesto = () => {
                             transition={{ duration: 1, delay: 1 }}
                             className="mt-20"
                         >
-                            <p className="text-gray-500 text-lg md:text-xl font-serif italic max-w-2xl mx-auto leading-relaxed">
+                            <p className="text-gray-500 dark:text-gray-400 text-lg md:text-xl font-serif italic max-w-2xl mx-auto leading-relaxed">
                                 {manifesto?.quote || '"Gege the Brand nace de la necesidad de celebrar la individualidad femenina. Piezas que no solo visten, sino que acompañan."'}
                             </p>
                         </motion.div>

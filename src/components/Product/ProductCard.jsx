@@ -33,7 +33,7 @@ const ProductCard = ({ product, onQuickShop }) => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <div className="relative aspect-[3/4] mb-4 overflow-hidden bg-gray-100">
+            <div className="relative aspect-[3/4] mb-4 overflow-hidden bg-gray-100 dark:bg-gray-800">
                 <Link to={`/product/${product.id}`} className="block w-full h-full">
                     {mainImage ? (
                         <img
@@ -60,7 +60,7 @@ const ProductCard = ({ product, onQuickShop }) => {
                             e.preventDefault();
                             if (onQuickShop) onQuickShop();
                         }}
-                        className="bg-white p-2 rounded-full shadow-md hover:bg-black hover:text-white transition-colors duration-300 pointer-events-auto"
+                        className="bg-white dark:bg-gray-800 p-2 rounded-full shadow-md hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors duration-300 pointer-events-auto"
                     >
                         <ShoppingBag size={18} />
                     </button>
@@ -80,17 +80,17 @@ const ProductCard = ({ product, onQuickShop }) => {
             </div>
 
             <div className="flex flex-col flex-grow text-center mt-4">
-                <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider">{product.category}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">{product.category}</p>
                 <h3 className="text-sm font-semibold mb-1 uppercase tracking-wide leading-tight group-hover:underline">
                     <Link to={`/product/${product.id}`}>{product.name}</Link>
                 </h3>
-                <p className="text-sm text-gray-900 font-bold mt-auto tracking-widest">S/ {formatPrice(product.price)}</p>
+                <p className="text-sm text-gray-900 dark:text-gray-100 font-bold mt-auto tracking-widest">S/ {formatPrice(product.price)}</p>
                 {uniqueColorObjects.length > 0 && (
                     <div className="flex items-center justify-center gap-1.5 mt-2">
                         {uniqueColorObjects.map((variant, idx) => (
                             <div 
                                 key={variant.color || idx} 
-                                className="w-3.5 h-3.5 rounded-full border border-gray-300 shadow-sm"
+                                className="w-3.5 h-3.5 rounded-full border border-gray-300 dark:border-gray-600 shadow-sm"
                                 style={{ backgroundColor: variant.color_hex || variant.color }}
                                 title={variant.color}
                             />

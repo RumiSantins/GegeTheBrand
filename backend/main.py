@@ -37,6 +37,24 @@ def create_db_and_tables():
         except:
             session.rollback()
 
+        try:
+            session.exec(text("ALTER TABLE editorialsettings ADD COLUMN button_url VARCHAR DEFAULT '/#shop'"))
+            session.commit()
+        except:
+            session.rollback()
+
+        try:
+            session.exec(text("ALTER TABLE `order` ADD COLUMN amount_paid FLOAT DEFAULT 0.0"))
+            session.commit()
+        except:
+            session.rollback()
+
+        try:
+            session.exec(text("ALTER TABLE `order` ADD COLUMN payment_method VARCHAR DEFAULT 'Efectivo'"))
+            session.commit()
+        except:
+            session.rollback()
+
 def get_session():
     with Session(engine) as session:
         yield session
@@ -443,7 +461,7 @@ def create_order(
     session.commit()
     session.refresh(order)
     
-    return {"order_number": order.order_number, "id": str(order.id)}
+    return {"order_number": order.order_number, "id": str(order.id), "amount_paid": order.amount_paid, "payment_method": order.payment_method}
 
 @app.get("/admin/orders")
 def get_orders(
@@ -590,6 +608,10 @@ def update_order_details(
             session.add(new_item)
             
         order.total_amount = new_total
+        if "amount_paid" in order_data:
+            order.amount_paid = float(order_data["amount_paid"])
+        if "payment_method" in order_data:
+            order.payment_method = order_data["payment_method"]
         session.add(order)
         session.commit()
         
