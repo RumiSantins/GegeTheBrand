@@ -60,6 +60,32 @@ La forma más sencilla de ejecutar todo el ecosistema (Frontend + Backend) es ut
    - **Backend API:** [http://localhost:8080](http://localhost:8080)
    - **Documentación API (Swagger):** [http://localhost:8080/docs](http://localhost:8080/docs)
 
+### Desarrollo Local (Sin Docker)
+
+Si prefieres ejecutar los servicios manualmente:
+
+#### 1. Backend (FastAPI)
+```bash
+cd backend
+python -m venv venv
+# Windows:
+.\venv\Scripts\activate
+# Mac/Linux:
+source venv/bin/activate
+
+pip install -r requirements.txt
+python main.py
+```
+*El backend correrá en http://localhost:8000*
+
+#### 2. Frontend (React + Vite)
+```bash
+# Desde la raíz del proyecto
+npm install
+npm run dev
+```
+*El frontend correrá en http://localhost:5173*
+
 ---
 
 ## 📂 Estructura del Proyecto
