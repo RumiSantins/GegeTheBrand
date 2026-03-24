@@ -9,7 +9,10 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
         price: '',
         description: '',
         category: 'General',
+        related_product_id: '',
     });
+
+    const [allProducts, setAllProducts] = useState([]);
 
     // Variants instead of global stock/sizes/colors
     const [variants, setVariants] = useState([]);
@@ -32,6 +35,20 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
             }
         };
         fetchCategories();
+        fetchCategories();
+
+        const fetchAllProducts = async () => {
+            try {
+                const res = await fetch('http://localhost:8080/products');
+                if (res.ok) {
+                    const data = await res.json();
+                    setAllProducts(data);
+                }
+            } catch (err) {
+                console.error("Error fetching products:", err);
+            }
+        };
+        fetchAllProducts();
     }, []);
 
     useEffect(() => {
@@ -41,6 +58,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                 price: initialData.price || '',
                 description: initialData.description || '',
                 category: initialData.category || 'General',
+                related_product_id: initialData.related_product_id || '',
             });
 
             if (initialData.variants) {
@@ -130,6 +148,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
             price: parseFloat(formData.price),
             description: formData.description,
             category: formData.category,
+            related_product_id: formData.related_product_id || null,
             images: finalImageUrls,
             variants: variants.map(v => ({
                 size: v.size,
@@ -197,6 +216,26 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                 <div>
                     <label className="block text-xs font-bold uppercase mb-1">Descripción</label>
                     <textarea rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full border p-2 text-sm"></textarea>
+                </div>
+
+                <div>
+                    <label className="block text-xs font-bold uppercase mb-1">Producto Relacionado (Shop the Look)</label>
+                    <select 
+                        value={formData.related_product_id} 
+                        onChange={e => setFormData({ ...formData, related_product_id: e.target.value })} 
+                        className="w-full border p-2 text-sm"
+                    >
+                        <option value="">Ninguno</option>
+                        {allProducts
+                            .filter(p => !initialData || p.id !== initialData.id)
+                            .map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))
+                        }
+                    </select>
+                    <p className="text-[10px] text-gray-500 mt-1 uppercase italic">
+                        Selecciona un producto para mostrarlo como una recomendación de estilo en la página de este producto.
+                    </p>
                 </div>
 
                 <div className="border-t pt-4">

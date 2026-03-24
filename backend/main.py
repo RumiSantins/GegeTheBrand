@@ -1,17 +1,36 @@
 import os
 import shutil
-from typing import List
+import json
+import uuid
+import jwt
+from typing import List, Optional
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta
 from fastapi import FastAPI, Depends, UploadFile, File, HTTPException, status, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from sqlmodel import SQLModel, create_engine, Session, select
+from sqlmodel import SQLModel, create_engine, Session, select, text
 from sqlalchemy.orm import selectinload
-import json
+from passlib.context import CryptContext
+from dotenv import load_dotenv
 from models import Product, ProductVariant, Category, HeroSlide, Manifesto, SiteSettings, EditorialSettings, Order, OrderItem
-from datetime import datetime
-import uuid
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+load_dotenv()
+
+# Security Configuration labels from .env
+SECRET_KEY = os.getenv("SECRET_KEY", "default-secret-key")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 1440))
+ADMIN_USERNAME_ENV = os.getenv("ADMIN_USERNAME", "admin").strip().strip('"')
+ADMIN_PASSWORD_HASH_ENV = os.getenv("ADMIN_PASSWORD_HASH", "").strip().strip('"')
+
+pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 
 # Configuración de BD SQLite
 sqlite_file_name = "database.db"
@@ -20,7 +39,6 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, echo=True, connect_args=connect_args)
 
-from sqlmodel import text
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
@@ -55,6 +73,12 @@ def create_db_and_tables():
         except:
             session.rollback()
 
+        try:
+            session.exec(text("ALTER TABLE product ADD COLUMN related_product_id CHAR(32)"))
+            session.commit()
+        except:
+            session.rollback()
+
 def get_session():
     with Session(engine) as session:
         yield session
@@ -67,31 +91,94 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+@app.middleware("http")
+async def log_requests(request, call_next):
+    logger.info(f"Incoming request: {request.method} {request.url}")
+    response = await call_next(request)
+    logger.info(f"Outgoing response: {response.status_code}")
+    return response
+
 # --- 1. CONFIGURACIÓN CORS ---
+# Usamos una lista explícita para compatibilidad con allow_credentials=True
+origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:127.0.0.1:5174",
+    "http://127.0.0.1:3000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"], 
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
+
+# Exception handlers to ensure CORS headers are present even on errors
+from fastapi.responses import JSONResponse
+from fastapi import Request
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    origin = request.headers.get("origin")
+    headers = {}
+    if origin in origins or "*" in origins:
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Credentials"] = "true"
+    
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=headers
+    )
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    origin = request.headers.get("origin")
+    headers = {}
+    if origin in origins or "*" in origins:
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Credentials"] = "true"
+    
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc)},
+        headers=headers
+    )
 
 # --- 2. SERVIR ARCHIVOS ESTÁTICOS ---
 os.makedirs("static/uploads", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# --- 3. SEGURIDAD (JWT DEPENDENCY BÁSICA) ---
+# --- 3. SEGURIDAD (JWT & PASSWORD HASHING) ---
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# Credenciales de prueba
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "password123"
+def verify_password(plain_password, hashed_password):
+    return plain_password == hashed_password
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 @app.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    if form_data.username == ADMIN_USERNAME and form_data.password == ADMIN_PASSWORD:
-        # En producción, usa PyJWT para generar un token real
-        return {"access_token": "fake-jwt-token-for-admin-demo", "token_type": "bearer"}
+    if form_data.username == ADMIN_USERNAME_ENV and verify_password(form_data.password, ADMIN_PASSWORD_HASH_ENV):
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": form_data.username}, expires_delta=access_token_expires
+        )
+        return {"access_token": access_token, "token_type": "bearer"}
+    
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Usuario o contraseña incorrectos",
@@ -99,14 +186,22 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     )
 
 def get_current_admin(token: str = Depends(oauth2_scheme)):
-    # Validación simple para demo
-    if token != "fake-jwt-token-for-admin-demo":
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None or username != ADMIN_USERNAME_ENV:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Credenciales inválidas o expiradas",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return {"username": username, "role": "admin"}
+    except (jwt.PyJWTError, Exception):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales inválidas",
+            detail="Token inválido o expirado",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return {"username": ADMIN_USERNAME, "role": "admin"}
 
 # --- 4. GESTIÓN DE ARCHIVOS (IMÁGENES) ---
 @app.post("/admin/upload-image")

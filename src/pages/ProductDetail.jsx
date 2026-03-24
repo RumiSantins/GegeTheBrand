@@ -14,6 +14,7 @@ const ProductDetail = () => {
     const [selectedColor, setSelectedColor] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [product, setProduct] = useState(null);
+    const [relatedProduct, setRelatedProduct] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -34,6 +35,31 @@ const ProductDetail = () => {
             }
         };
         fetchProduct();
+    }, [id]);
+
+    useEffect(() => {
+        const fetchRelatedProduct = async () => {
+            if (product && product.related_product_id) {
+                try {
+                    const res = await fetch(`http://localhost:8080/products`);
+                    if (res.ok) {
+                        const allProducts = await res.json();
+                        const found = allProducts.find(p => p.id === product.related_product_id);
+                        if (found) {
+                            setRelatedProduct(found);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error fetching related product:", err);
+                }
+            } else {
+                setRelatedProduct(null);
+            }
+        };
+        fetchRelatedProduct();
+    }, [product]);
+
+    useEffect(() => {
         if (window.lenis) {
             window.lenis.scrollTo(0, { immediate: true });
         } else {
@@ -142,6 +168,37 @@ const ProductDetail = () => {
                                     alt={`${product.name} view ${idx + 1}`}
                                     className="w-full h-full object-cover"
                                 />
+                                {idx === 0 && relatedProduct && (
+                                    <div className="absolute bottom-12 left-0 z-20 group/stl">
+                                        <Link 
+                                            to={`/product/${relatedProduct.id}`}
+                                            className="flex items-center bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 p-2 pl-0 rounded-r-full shadow-2xl transition-all duration-500 hover:bg-white dark:hover:bg-[#1a1425] hover:pl-3 group-hover/stl:shadow-white/5"
+                                        >
+                                            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/30 shadow-inner">
+                                                <img 
+                                                    src={(() => {
+                                                        try {
+                                                            const relImages = JSON.parse(relatedProduct.images || '[]');
+                                                            const firstImg = relImages[0];
+                                                            return firstImg.startsWith('http') ? firstImg : `http://localhost:8080${firstImg}`;
+                                                        } catch(e) { return ''; }
+                                                    })()} 
+                                                    alt={relatedProduct.name}
+                                                    className="w-full h-full object-cover group-hover/stl:scale-110 transition-transform duration-700"
+                                                />
+                                            </div>
+                                            <div className="max-w-0 overflow-hidden group-hover/stl:max-w-xs transition-all duration-500 ease-in-out">
+                                                <div className="px-4 whitespace-nowrap flex flex-col">
+                                                    <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-0.5">Shop the Look</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[11px] font-bold uppercase tracking-tight text-black dark:text-white">{relatedProduct.name}</span>
+                                                        <ChevronRight size={10} className="text-black dark:text-white" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         )) : (
                             <div className="aspect-[3/4] bg-gray-100 flex items-center justify-center">

@@ -83,6 +83,7 @@ class Product(SQLModel, table=True):
     colors: Optional[str] = None
     
     variants: List[ProductVariant] = Relationship(back_populates="product", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    related_product_id: Optional[UUID] = Field(default=None)
 
 class Order(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)

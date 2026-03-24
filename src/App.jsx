@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Lenis from 'lenis';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
@@ -16,10 +16,13 @@ import AdminDashboard from './components/Admin/AdminDashboard';
 import OrderReceipt from './components/Admin/OrderReceipt';
 import Wishlist from './pages/Wishlist';
 import SharedWishlist from './pages/SharedWishlist';
+import Links from './pages/Links';
 
 const AppContent = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isLinksRoute = location.pathname === '/links';
+  const isIsolatedRoute = isAdminRoute || isLinksRoute;
 
   useEffect(() => {
     // Initialize Lenis for buttery smooth scrolling
@@ -94,22 +97,24 @@ const AppContent = () => {
   }, [location.pathname, location.hash]);
 
   return (
-    <div className={`flex flex-col min-h-screen font-body transition-colors duration-500 ${!isAdminRoute ? 'bg-secondary dark:bg-[#07020f] text-primary dark:text-gray-100' : 'bg-gray-50 text-primary'}`}>
-      {!isAdminRoute && <Header />}
-      {!isAdminRoute && <CartDrawer />}
+    <div className={`flex flex-col min-h-screen font-body transition-colors duration-500 ${!isIsolatedRoute ? 'bg-secondary dark:bg-[#07020f] text-primary dark:text-gray-100' : (isAdminRoute ? 'bg-gray-50 text-primary' : '')}`}>
+      {!isIsolatedRoute && <Header />}
+      {!isIsolatedRoute && <CartDrawer />}
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/receipt/:id" element={<OrderReceipt />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/wishlist/shared" element={<SharedWishlist />} />
+          <Route path="/links" element={<Links />} />
         </Routes>
       </main>
-      {!isAdminRoute && <Footer />}
-      {!isAdminRoute && <WhatsAppBubble />}
+      {!isIsolatedRoute && <Footer />}
+      {!isIsolatedRoute && <WhatsAppBubble />}
     </div>
   );
 };
