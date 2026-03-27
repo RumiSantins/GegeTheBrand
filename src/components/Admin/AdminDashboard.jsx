@@ -171,59 +171,61 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
             <div className="max-w-6xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-header font-bold uppercase tracking-wider">Panel de Administración</h1>
+                <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
+                    <h1 className="text-2xl sm:text-3xl font-header font-bold uppercase tracking-wider">Panel de Administración</h1>
                     <button onClick={logout} className="text-sm font-bold uppercase tracking-wider text-gray-500 hover:text-black transition">
                         Cerrar Sesión
                     </button>
                 </div>
 
                 {/* Tabs */}
-                <div className="flex gap-4 mb-6 border-b pb-2">
-                    <button
-                        onClick={() => setActiveTab('products')}
-                        className={`font-bold uppercase tracking-wider text-sm pb-2 border-b-2 flex items-center gap-2 transition ${activeTab === 'products' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
-                    >
-                        <Box size={16} /> Productos
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('categories')}
-                        className={`font-bold uppercase tracking-wider text-sm pb-2 border-b-2 flex items-center gap-2 transition ${activeTab === 'categories' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
-                    >
-                        <Tag size={16} /> Categorías
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('hero-slides')}
-                        className={`font-bold uppercase tracking-wider text-sm pb-2 border-b-2 flex items-center gap-2 transition ${activeTab === 'hero-slides' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
-                    >
-                        <Images size={16} /> Slider Principal
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('manifesto')}
-                        className={`font-bold uppercase tracking-wider text-sm pb-2 border-b-2 flex items-center gap-2 transition ${activeTab === 'manifesto' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
-                    >
-                        <BookOpen size={16} /> Manifiesto
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('site-settings')}
-                        className={`font-bold uppercase tracking-wider text-sm pb-2 border-b-2 flex items-center gap-2 transition ${activeTab === 'site-settings' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
-                    >
-                        <Settings size={16} /> Textos Tienda
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('editorial')}
-                        className={`font-bold uppercase tracking-wider text-sm pb-2 border-b-2 flex items-center gap-2 transition ${activeTab === 'editorial' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
-                    >
-                        <LayoutTemplate size={16} /> Editorial
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('orders')}
-                        className={`font-bold uppercase tracking-wider text-sm pb-2 border-b-2 flex items-center gap-2 transition ${activeTab === 'orders' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
-                    >
-                        <ShoppingCart size={16} /> Pedidos
-                    </button>
+                <div className="mb-6 border-b overflow-hidden">
+                    <div className="flex overflow-x-auto scrollbar-hide gap-4 pb-2 -mb-px">
+                        <button
+                            onClick={() => setActiveTab('products')}
+                            className={`font-bold uppercase tracking-wider text-xs sm:text-sm pb-2 border-b-2 flex items-center gap-2 transition whitespace-nowrap flex-shrink-0 min-w-max ${activeTab === 'products' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                        >
+                            <Box size={16} /> Productos
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('categories')}
+                            className={`font-bold uppercase tracking-wider text-xs sm:text-sm pb-2 border-b-2 flex items-center gap-2 transition whitespace-nowrap flex-shrink-0 min-w-max ${activeTab === 'categories' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                        >
+                            <Tag size={16} /> Categorías
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('hero-slides')}
+                            className={`font-bold uppercase tracking-wider text-xs sm:text-sm pb-2 border-b-2 flex items-center gap-2 transition whitespace-nowrap flex-shrink-0 min-w-max ${activeTab === 'hero-slides' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                        >
+                            <Images size={16} /> Slider Principal
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('manifesto')}
+                            className={`font-bold uppercase tracking-wider text-xs sm:text-sm pb-2 border-b-2 flex items-center gap-2 transition whitespace-nowrap flex-shrink-0 min-w-max ${activeTab === 'manifesto' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                        >
+                            <BookOpen size={16} /> Manifiesto
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('site-settings')}
+                            className={`font-bold uppercase tracking-wider text-xs sm:text-sm pb-2 border-b-2 flex items-center gap-2 transition whitespace-nowrap flex-shrink-0 min-w-max ${activeTab === 'site-settings' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                        >
+                            <Settings size={16} /> Textos Tienda
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('editorial')}
+                            className={`font-bold uppercase tracking-wider text-xs sm:text-sm pb-2 border-b-2 flex items-center gap-2 transition whitespace-nowrap flex-shrink-0 min-w-max ${activeTab === 'editorial' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                        >
+                            <LayoutTemplate size={16} /> Editorial
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('orders')}
+                            className={`font-bold uppercase tracking-wider text-xs sm:text-sm pb-2 border-b-2 flex items-center gap-2 transition whitespace-nowrap flex-shrink-0 min-w-max ${activeTab === 'orders' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                        >
+                            <ShoppingCart size={16} /> Pedidos
+                        </button>
+                    </div>
                 </div>
 
                 {activeTab === 'products' && (
