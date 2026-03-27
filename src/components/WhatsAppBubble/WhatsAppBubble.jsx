@@ -5,7 +5,7 @@ import { Send } from 'lucide-react';
 const WhatsAppBubble = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [message, setMessage] = useState('');
-    const phoneNumber = "51930291524";
+    const phoneNumber = "51948124445";
 
     const handleSend = () => {
         const text = message.trim() || "¡Hola! Me gustaría hacer una consulta.";
@@ -39,7 +39,7 @@ const WhatsAppBubble = () => {
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 placeholder="Escribe tu consulta..."
-                                className="w-full text-sm p-3 border rounded-xl focus:outline-none focus:border-[#25D366] focus:ring-1 focus:ring-[#25D366] resize-none h-20 bg-white"
+                                className="w-full text-sm p-3 border rounded-xl focus:outline-none focus:border-[#25D366] focus:ring-1 focus:ring-[#25D366] resize-none h-20 bg-white text-gray-800"
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && !e.shiftKey) {
                                         e.preventDefault();

@@ -40,7 +40,7 @@ const CartDrawer = () => {
             // Sigue redirigiendo a whatsapp aunque falle local...
         }
 
-        const phoneNumber = "51930291524";
+        const phoneNumber = "51948124445";
         const now = new Date();
         const timestamp = `${now.toLocaleDateString('es-PE')} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
 

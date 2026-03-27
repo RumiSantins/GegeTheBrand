@@ -106,10 +106,10 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
                                             <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 text-sm">Sin imagen</div>
                                         )}
                                     </div>
-                                    <h3 className="font-header font-bold text-xl uppercase tracking-tight mb-2">{product.name}</h3>
-                                    <p className="text-lg text-gray-900 font-bold mb-4 tracking-widest">S/. {product.price.toFixed(2)}</p>
+                                    <h3 className="font-header font-bold text-xl uppercase tracking-tight mb-2 dark:text-white">{product.name}</h3>
+                                    <p className="text-lg text-gray-900 dark:text-gray-100 font-bold mb-4 tracking-widest">S/. {product.price.toFixed(2)}</p>
 
-                                    <Link to={`/product/${product.id}`} className="text-sm border-b border-black self-start pb-1 uppercase font-bold tracking-widest hover:text-gray-600 transition">
+                                    <Link to={`/product/${product.id}`} className="text-sm border-b border-black dark:border-white self-start pb-1 uppercase font-bold tracking-widest hover:text-gray-600 dark:hover:text-gray-400 transition">
                                         Ver detalles del producto
                                     </Link>
                                 </div>
@@ -207,14 +207,14 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
                                     )}
 
                                     {/* Actions bottom fixed inside right col */}
-                                    <div className="mt-auto pt-6 flex flex-col gap-4 border-t border-gray-100">
+                                    <div className="mt-auto pt-6 flex flex-col gap-4 border-t border-gray-100 dark:border-gray-800">
                                         <div className="flex flex-row gap-3">
-                                            <div className="flex items-center justify-between border border-gray-300 rounded-full px-4 py-2 w-1/3">
-                                                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-gray-500 hover:text-black transition">
+                                            <div className="flex items-center justify-between border border-gray-300 dark:border-gray-700 rounded-full px-4 py-2 w-1/3">
+                                                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="text-gray-500 hover:text-black dark:hover:text-white transition">
                                                     <Minus size={16} />
                                                 </button>
-                                                <span className="text-sm font-bold w-8 text-center">{quantity}</span>
-                                                <button onClick={() => setQuantity(quantity + 1)} className="text-gray-500 hover:text-black transition">
+                                                <span className="text-sm font-bold w-8 text-center dark:text-white">{quantity}</span>
+                                                <button onClick={() => setQuantity(quantity + 1)} className="text-gray-500 hover:text-black dark:hover:text-white transition">
                                                     <Plus size={16} />
                                                 </button>
                                             </div>
@@ -254,8 +254,8 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
                                                     }}
                                                     className={`w-full py-3 rounded-full text-sm font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 border ${
                                                         isInWishlist
-                                                            ? 'border-red-500 text-red-500 bg-red-50 hover:bg-red-100'
-                                                            : 'border-gray-300 text-gray-600 hover:border-black hover:text-black'
+                                                            ? 'border-red-500 text-red-500 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50'
+                                                            : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white'
                                                     }`}
                                                 >
                                                     <Heart size={16} className={isInWishlist ? 'fill-current' : ''} />

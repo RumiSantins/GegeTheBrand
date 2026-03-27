@@ -11,23 +11,18 @@ const Links = () => {
     },
     {
       name: 'Instagram',
-      url: 'https://instagram.com/gegethebrand',
+      url: 'https://www.instagram.com/gege.thebrand/',
       icon: <Instagram className="w-5 h-5" />
     },
     {
       name: 'WhatsApp',
-      url: 'https://wa.me/51930291524',
+      url: 'https://wa.me/51948124445',
       icon: <MessageCircle className="w-5 h-5" />
     },
     {
       name: 'TikTok',
-      url: 'https://tiktok.com/@gegethebrand',
-      icon: <Send className="w-5 h-5" /> // Using Send as a placeholder for TikTok if not in Lucide
-    },
-    {
-      name: 'Catálogo Cuidado Personal',
-      url: '/?category=Cuidado%20Personal#shop',
-      icon: <Globe className="w-5 h-5" />
+      url: 'https://www.tiktok.com/@gege.thebrand',
+      icon: <Send className="w-5 h-5" />
     }
   ];
 
@@ -50,15 +45,6 @@ const Links = () => {
         </p>
       </div>
 
-      {/* Social Desktop Icons */}
-      <div className="flex gap-6 mb-8 text-black dark:text-white">
-        <a href="https://instagram.com/gegethebrand" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform">
-          <Instagram className="w-6 h-6" />
-        </a>
-        <a href="https://wa.me/51930291524" target="_blank" rel="noopener noreferrer" className="hover:scale-110 transition-transform">
-          <MessageCircle className="w-6 h-6" />
-        </a>
-      </div>
 
       {/* Links List */}
       <div className="w-full max-w-md space-y-4">

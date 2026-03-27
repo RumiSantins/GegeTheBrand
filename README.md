@@ -57,8 +57,20 @@ La forma más sencilla de ejecutar todo el ecosistema (Frontend + Backend) es ut
 
 3. **Accesos Locales:**
    - **Frontend:** [http://localhost:3000](http://localhost:3000)
+   - **Admin Dashboard:** [http://localhost:3000/admin](http://localhost:3000/admin)
    - **Backend API:** [http://localhost:8080](http://localhost:8080)
    - **Documentación API (Swagger):** [http://localhost:8080/docs](http://localhost:8080/docs)
+
+### 🔐 Credenciales de Acceso (Desarrollo)
+
+Para acceder al **Admin Dashboard** en el entorno de desarrollo local, utiliza las siguientes credenciales configuradas por defecto:
+
+| Usuario | Contraseña |
+| :--- | :--- |
+| `admin` | `password123` |
+
+> [!IMPORTANT]
+> Estas credenciales están configuradas en el archivo `backend/.env`. Se recomienda cambiarlas antes de cualquier despliegue en producción.
 
 ### Desarrollo Local (Sin Docker)
 
@@ -84,7 +96,7 @@ python main.py
 npm install
 npm run dev
 ```
-*El frontend correrá en http://localhost:5173*
+*El frontend correrá en http://localhost:5173 (Admin en [http://localhost:5173/admin](http://localhost:5173/admin))*
 
 ---
 
