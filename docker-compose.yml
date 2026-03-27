@@ -25,6 +25,6 @@ services:
       - ./src:/app/src
       - ./public:/app/public
     environment:
-      - VITE_API_URL=http://localhost:8080
+      - NODE_ENV=production
     depends_on:
       - backend
