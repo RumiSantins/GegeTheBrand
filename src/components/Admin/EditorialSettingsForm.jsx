@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { Save, Upload } from 'lucide-react';
+import { API_BASE_URL } from '../../api/config';
 
 const EditorialSettingsForm = () => {
     const { getAuthHeaders, token } = useContext(AuthContext);
@@ -37,7 +38,7 @@ const EditorialSettingsForm = () => {
 
     const fetchSettings = async () => {
         try {
-            const res = await fetch('http://localhost:8080/editorial-settings');
+            const res = await fetch(`${API_BASE_URL}/editorial-settings`);
             if (res.ok) {
                 const data = await res.json();
                 setFormData({
@@ -84,13 +85,13 @@ const EditorialSettingsForm = () => {
 
     const resolveImageUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') || url.startsWith('blob') ? url : `http://localhost:8080${encodeURI(url)}`;
+        return url.startsWith('http') || url.startsWith('blob') ? url : `${API_BASE_URL}${encodeURI(url)}`;
     };
 
     const uploadImage = async (file) => {
         const formData = new FormData();
         formData.append('file', file);
-        const res = await fetch('http://localhost:8080/admin/upload-image', {
+        const res = await fetch(`${API_BASE_URL}/admin/upload-image`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
             body: formData
@@ -132,7 +133,7 @@ const EditorialSettingsForm = () => {
                 await Promise.all(uploadPromises);
             }
 
-            const res = await fetch('http://localhost:8080/admin/editorial-settings', {
+            const res = await fetch(`${API_BASE_URL}/admin/editorial-settings`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

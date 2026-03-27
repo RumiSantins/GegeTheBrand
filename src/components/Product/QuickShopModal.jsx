@@ -4,6 +4,7 @@ import { X, Plus, Minus, Heart } from 'lucide-react';
 import { CartContext } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../../api/config';
 
 const QuickShopModal = ({ isOpen, onClose, product }) => {
     const { addToCart } = useContext(CartContext);
@@ -28,7 +29,7 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
         parsedImages = JSON.parse(product.images || '[]');
     } catch (e) { }
 
-    const imgs = parsedImages.map(url => url.startsWith('http') ? url : `http://localhost:8080${url}`);
+    const imgs = parsedImages.map(url => url.startsWith('http') ? url : `${API_BASE_URL}${url}`);
     const mainImage = imgs.length > 0 ? imgs[0] : '';
 
     const variants = product.variants || [];

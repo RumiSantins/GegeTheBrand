@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { API_BASE_URL } from '../../api/config';
 
 const BrandManifesto = () => {
     const [manifesto, setManifesto] = useState(null);
@@ -7,7 +8,7 @@ const BrandManifesto = () => {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const res = await fetch('http://localhost:8080/manifesto');
+                const res = await fetch(`${API_BASE_URL}/manifesto`);
                 const data = await res.json();
                 setManifesto(data);
 
@@ -29,7 +30,7 @@ const BrandManifesto = () => {
 
     const resolveImageUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') || url.startsWith('blob') ? url : `http://localhost:8080${encodeURI(url)}`;
+        return url.startsWith('http') || url.startsWith('blob') ? url : `${API_BASE_URL}${encodeURI(url)}`;
     };
     const textRef = useRef(null);
     const { scrollYProgress } = useScroll({

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, ShoppingBag, Plus, Minus } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../../api/config';
 
 const CartDrawer = () => {
     const { isCartOpen, toggleCart, cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
@@ -25,7 +26,7 @@ const CartDrawer = () => {
         let generatedOrderIdStr = Math.floor(1000 + Math.random() * 9000).toString();
 
         try {
-            const res = await fetch('http://localhost:8080/orders', {
+            const res = await fetch(`${API_BASE_URL}/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(orderData)
@@ -174,7 +175,7 @@ const CartItem = ({ item, updateQuantity, removeFromCart }) => {
     // Resolve URL to backend if relative
     let finalImage = null;
     if (extractedImage) {
-        finalImage = extractedImage.startsWith('http') ? extractedImage : `http://localhost:8080${extractedImage}`;
+        finalImage = extractedImage.startsWith('http') ? extractedImage : `${API_BASE_URL}${extractedImage}`;
     }
 
     const [imgSrc, setImgSrc] = React.useState(finalImage);

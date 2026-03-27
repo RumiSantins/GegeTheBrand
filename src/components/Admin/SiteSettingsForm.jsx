@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { Save } from 'lucide-react';
+import { API_BASE_URL } from '../../api/config';
 
 const SiteSettingsForm = () => {
     const { getAuthHeaders } = useContext(AuthContext);
@@ -19,7 +20,7 @@ const SiteSettingsForm = () => {
 
     const fetchSettings = async () => {
         try {
-            const res = await fetch('http://localhost:8080/site-settings');
+            const res = await fetch(`${API_BASE_URL}/site-settings`);
             if (res.ok) {
                 const data = await res.json();
                 setFormData({
@@ -44,7 +45,7 @@ const SiteSettingsForm = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            const res = await fetch('http://localhost:8080/admin/site-settings', {
+            const res = await fetch(`${API_BASE_URL}/admin/site-settings`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

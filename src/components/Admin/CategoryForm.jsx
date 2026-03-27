@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { X, Upload } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../api/config';
 
 const CategoryForm = ({ initialData, onSaved, onCancel }) => {
     const { getAuthHeaders } = useContext(AuthContext);
@@ -24,7 +25,7 @@ const CategoryForm = ({ initialData, onSaved, onCancel }) => {
         const imgData = new FormData();
         imgData.append('file', fileToUpload);
 
-        const res = await fetch('http://localhost:8080/admin/upload-image', {
+        const res = await fetch(`${API_BASE_URL}/admin/upload-image`, {
             method: 'POST',
             body: imgData,
             headers: getAuthHeaders()
@@ -58,8 +59,8 @@ const CategoryForm = ({ initialData, onSaved, onCancel }) => {
 
         const method = initialData ? 'PUT' : 'POST';
         const url = initialData
-            ? `http://localhost:8080/admin/categories/${initialData.id}`
-            : 'http://localhost:8080/admin/categories';
+            ? `${API_BASE_URL}/admin/categories/${initialData.id}`
+            : `${API_BASE_URL}/admin/categories`;
 
         try {
             const res = await fetch(url, {
@@ -109,7 +110,7 @@ const CategoryForm = ({ initialData, onSaved, onCancel }) => {
                     <div className="flex items-center gap-4">
                         <div className="w-24 h-32 bg-gray-100 border flex items-center justify-center overflow-hidden">
                             {preview ? (
-                                <img src={preview.startsWith('http') || preview.startsWith('blob') ? preview : `http://localhost:8080${encodeURI(preview)}`} alt="preview" className="w-full h-full object-cover" />
+                                <img src={preview.startsWith('http') || preview.startsWith('blob') ? preview : `${API_BASE_URL}${encodeURI(preview)}`} alt="preview" className="w-full h-full object-cover" />
                             ) : (
                                 <span className="text-gray-400 text-xs text-center px-2">Sin imagen</span>
                             )}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { Save, Upload } from 'lucide-react';
+import { API_BASE_URL } from '../../api/config';
 
 const ManifestoForm = () => {
     const { getAuthHeaders } = useContext(AuthContext);
@@ -34,7 +35,7 @@ const ManifestoForm = () => {
 
     const fetchManifesto = async () => {
         try {
-            const res = await fetch('http://localhost:8080/manifesto');
+            const res = await fetch(`${API_BASE_URL}/manifesto`);
             if (res.ok) {
                 const data = await res.json();
                 setFormData(data);
@@ -63,7 +64,7 @@ const ManifestoForm = () => {
         const imgData = new FormData();
         imgData.append('file', fileToUpload);
 
-        const res = await fetch('http://localhost:8080/admin/upload-image', {
+        const res = await fetch(`${API_BASE_URL}/admin/upload-image`, {
             method: 'POST',
             body: imgData,
             headers: getAuthHeaders()
@@ -78,7 +79,7 @@ const ManifestoForm = () => {
 
     const resolveImageUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') || url.startsWith('blob') ? url : `http://localhost:8080${encodeURI(url)}`;
+        return url.startsWith('http') || url.startsWith('blob') ? url : `${API_BASE_URL}${encodeURI(url)}`;
     };
 
     const handleChange = (e) => {
@@ -104,7 +105,7 @@ const ManifestoForm = () => {
 
             const payload = { ...formData, image_1_url: finalImg1, image_2_url: finalImg2 };
 
-            const res = await fetch('http://localhost:8080/admin/manifesto', {
+            const res = await fetch(`${API_BASE_URL}/admin/manifesto`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

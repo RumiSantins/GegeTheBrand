@@ -4,6 +4,7 @@ import { CartContext } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { motion } from 'framer-motion';
 import { ChevronRight, Heart, Share2, Ruler } from 'lucide-react';
+import { API_BASE_URL } from '../api/config';
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -20,7 +21,7 @@ const ProductDetail = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const res = await fetch('http://localhost:8080/products');
+                const res = await fetch(`${API_BASE_URL}/products`);
                 if (res.ok) {
                     const data = await res.json();
                     const foundProduct = data.find(p => p.id === id || p.id.toString() === id);
@@ -41,7 +42,7 @@ const ProductDetail = () => {
         const fetchRelatedProduct = async () => {
             if (product && product.related_product_id) {
                 try {
-                    const res = await fetch(`http://localhost:8080/products`);
+                    const res = await fetch(`${API_BASE_URL}/products`);
                     if (res.ok) {
                         const allProducts = await res.json();
                         const found = allProducts.find(p => p.id === product.related_product_id);
@@ -87,7 +88,7 @@ const ProductDetail = () => {
         parsedImages = JSON.parse(product.images || '[]');
     } catch (e) { }
 
-    const imgs = parsedImages.map(url => url.startsWith('http') ? url : `http://localhost:8080${url}`);
+    const imgs = parsedImages.map(url => url.startsWith('http') ? url : `${API_BASE_URL}${url}`);
 
     // Extract unique sizes and colors from variants
     const variants = product.variants || [];
@@ -180,7 +181,7 @@ const ProductDetail = () => {
                                                         try {
                                                             const relImages = JSON.parse(relatedProduct.images || '[]');
                                                             const firstImg = relImages[0];
-                                                            return firstImg.startsWith('http') ? firstImg : `http://localhost:8080${firstImg}`;
+                                                            return firstImg.startsWith('http') ? firstImg : `${API_BASE_URL}${firstImg}`;
                                                         } catch(e) { return ''; }
                                                     })()} 
                                                     alt={relatedProduct.name}

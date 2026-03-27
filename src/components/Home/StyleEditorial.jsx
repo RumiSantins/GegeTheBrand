@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Plus, Instagram, Quote } from 'lucide-react';
+import { API_BASE_URL } from '../../api/config';
 
 const StyleEditorial = () => {
     const [settings, setSettings] = useState(null);
@@ -9,7 +10,7 @@ const StyleEditorial = () => {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const res = await fetch('http://localhost:8080/editorial-settings');
+                const res = await fetch(`${API_BASE_URL}/editorial-settings`);
                 if (res.ok) {
                     const data = await res.json();
                     setSettings(data);
@@ -32,7 +33,7 @@ const StyleEditorial = () => {
     }, []);
     const resolveImageUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') || url.startsWith('blob') ? url : `http://localhost:8080${encodeURI(url)}`;
+        return url.startsWith('http') || url.startsWith('blob') ? url : `${API_BASE_URL}${encodeURI(url)}`;
     };
 
     const moodboardImages = [

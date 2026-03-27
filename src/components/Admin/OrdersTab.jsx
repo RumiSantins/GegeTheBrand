@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { CheckCircle, XCircle, RotateCcw, Clock, Edit2, X, Save, Trash2, Plus, Printer } from 'lucide-react';
+import { API_BASE_URL } from '../../api/config';
 
 const OrdersTab = () => {
     const { getAuthHeaders } = useContext(AuthContext);
@@ -32,7 +33,7 @@ const OrdersTab = () => {
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch('http://localhost:8080/admin/orders', {
+            const res = await fetch(`${API_BASE_URL}/admin/orders`, {
                 headers: getAuthHeaders()
             });
             if (res.ok) {
@@ -48,7 +49,7 @@ const OrdersTab = () => {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch('http://localhost:8080/products');
+            const res = await fetch(`${API_BASE_URL}/products`);
             if (res.ok) {
                 const data = await res.json();
                 setProducts(data);
@@ -69,7 +70,7 @@ const OrdersTab = () => {
         }
 
         try {
-            const res = await fetch(`http://localhost:8080/admin/orders/${orderId}/status`, {
+            const res = await fetch(`${API_BASE_URL}/admin/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -188,7 +189,7 @@ const OrdersTab = () => {
         }
 
         try {
-            const res = await fetch(`http://localhost:8080/admin/orders/${editingOrder.id}`, {
+            const res = await fetch(`${API_BASE_URL}/admin/orders/${editingOrder.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

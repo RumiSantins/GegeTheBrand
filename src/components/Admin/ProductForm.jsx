@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { Upload, X, Save, Plus, Trash2 } from 'lucide-react';
+import { API_BASE_URL } from '../../api/config';
 
 const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
     const { getAuthHeaders } = useContext(AuthContext);
@@ -25,7 +26,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const res = await fetch('http://localhost:8080/categories');
+                const res = await fetch(`${API_BASE_URL}/categories`);
                 if (res.ok) {
                     const data = await res.json();
                     setCategories(data);
@@ -39,7 +40,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
 
         const fetchAllProducts = async () => {
             try {
-                const res = await fetch('http://localhost:8080/products');
+                const res = await fetch(`${API_BASE_URL}/products`);
                 if (res.ok) {
                     const data = await res.json();
                     setAllProducts(data);
@@ -70,7 +71,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                     const parsed = JSON.parse(initialData.images);
                     const loadedImages = parsed.map(url => ({
                         file: null,
-                        preview: url.startsWith('http') ? url : `http://localhost:8080${url}`
+                        preview: url.startsWith('http') ? url : `${API_BASE_URL}${url}`
                     }));
                     setImages(loadedImages);
                 } catch (e) { }
@@ -114,7 +115,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
         const imgData = new FormData();
         imgData.append('file', file);
 
-        const res = await fetch('http://localhost:8080/admin/upload-image', {
+        const res = await fetch(`${API_BASE_URL}/admin/upload-image`, {
             method: 'POST',
             body: imgData,
             headers: getAuthHeaders()
@@ -138,7 +139,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                 if (url) finalImageUrls.push(url);
             } else {
                 // Keep existing url but strip localhost domain if needed
-                const url = img.preview.replace('http://localhost:8080', '');
+                const url = img.preview.replace(API_BASE_URL, '').replace('http://localhost:8080', '');
                 finalImageUrls.push(url);
             }
         }
@@ -160,8 +161,8 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
 
         const method = initialData ? 'PUT' : 'POST';
         const url = initialData
-            ? `http://localhost:8080/admin/products/${initialData.id}`
-            : 'http://localhost:8080/admin/products';
+            ? `${API_BASE_URL}/admin/products/${initialData.id}`
+            : `${API_BASE_URL}/admin/products`;
 
         try {
             const res = await fetch(url, {

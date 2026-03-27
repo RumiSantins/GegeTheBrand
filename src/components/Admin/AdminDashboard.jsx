@@ -9,6 +9,7 @@ import SiteSettingsForm from './SiteSettingsForm';
 import EditorialSettingsForm from './EditorialSettingsForm';
 import OrdersTab from './OrdersTab';
 import { Plus, Edit2, Trash2, Tag, Box, Images, BookOpen, Settings, LayoutTemplate, ShoppingCart } from 'lucide-react';
+import { API_BASE_URL } from '../../api/config';
 
 const AdminDashboard = () => {
     const { token, logout, getAuthHeaders } = useContext(AuthContext);
@@ -37,7 +38,7 @@ const AdminDashboard = () => {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch('http://localhost:8080/products');
+            const res = await fetch(`${API_BASE_URL}/products`);
             if (res.ok) {
                 const data = await res.json();
                 setProducts(data);
@@ -49,7 +50,7 @@ const AdminDashboard = () => {
 
     const fetchCategories = async () => {
         try {
-            const res = await fetch('http://localhost:8080/categories');
+            const res = await fetch(`${API_BASE_URL}/categories`);
             if (res.ok) {
                 const data = await res.json();
                 setCategories(data);
@@ -61,7 +62,7 @@ const AdminDashboard = () => {
 
     const fetchHeroSlides = async () => {
         try {
-            const res = await fetch('http://localhost:8080/hero-slides');
+            const res = await fetch(`${API_BASE_URL}/hero-slides`);
             if (res.ok) {
                 const data = await res.json();
                 setHeroSlides(data);
@@ -83,7 +84,7 @@ const AdminDashboard = () => {
     const handleDelete = async (id) => {
         if (window.confirm("¿Seguro que deseas eliminar este producto?")) {
             try {
-                const res = await fetch(`http://localhost:8080/admin/products/${id}`, {
+                const res = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
                     method: 'DELETE',
                     headers: getAuthHeaders()
                 });
@@ -111,7 +112,7 @@ const AdminDashboard = () => {
     const handleDeleteCategory = async (id) => {
         if (window.confirm("¿Seguro que deseas eliminar esta categoría? Si tiene productos asignados, seguirán existiendo pero con categoría 'General'.")) {
             try {
-                const res = await fetch(`http://localhost:8080/admin/categories/${id}`, {
+                const res = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
                     method: 'DELETE',
                     headers: getAuthHeaders()
                 });
@@ -139,7 +140,7 @@ const AdminDashboard = () => {
     const handleDeleteSlide = async (id) => {
         if (window.confirm("¿Seguro que deseas eliminar este slide?")) {
             try {
-                const res = await fetch(`http://localhost:8080/admin/hero-slides/${id}`, {
+                const res = await fetch(`${API_BASE_URL}/admin/hero-slides/${id}`, {
                     method: 'DELETE',
                     headers: getAuthHeaders()
                 });
@@ -166,7 +167,7 @@ const AdminDashboard = () => {
 
     const resolveImageUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') ? url : `http://localhost:8080${encodeURI(url)}`;
+        return url.startsWith('http') ? url : `${API_BASE_URL}${encodeURI(url)}`;
     };
 
     return (

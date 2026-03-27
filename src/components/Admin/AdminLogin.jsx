@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../api/config';
 
 const AdminLogin = () => {
     const [username, setUsername] = useState('');
@@ -18,7 +19,7 @@ const AdminLogin = () => {
             formData.append('username', username);
             formData.append('password', password);
 
-            const res = await fetch('http://localhost:8080/login', {
+            const res = await fetch(`${API_BASE_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: formData

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { API_BASE_URL } from '../../api/config';
 
 const OrderReceipt = () => {
     const { id } = useParams();
@@ -11,7 +12,7 @@ const OrderReceipt = () => {
         const fetchOrder = async () => {
             try {
                 const token = localStorage.getItem('admin_token');
-                const res = await fetch(`http://localhost:8080/admin/orders/${id}`, {
+                const res = await fetch(`${API_BASE_URL}/admin/orders/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

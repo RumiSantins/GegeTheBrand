@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../../api/config';
 
 const SearchModal = ({ isOpen, onClose, categories = [] }) => {
     const [query, setQuery] = useState('');
@@ -16,7 +17,7 @@ const SearchModal = ({ isOpen, onClose, categories = [] }) => {
             const fetchProducts = async () => {
                 setLoading(true);
                 try {
-                    const res = await fetch('http://localhost:8080/products');
+                    const res = await fetch(`${API_BASE_URL}/products`);
                     if (res.ok) {
                         const data = await res.json();
                         // Pre-parse images to avoid JSON.parse during render loops
@@ -56,7 +57,7 @@ const SearchModal = ({ isOpen, onClose, categories = [] }) => {
 
     const resolveImageUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') ? url : `http://localhost:8080${url}`;
+        return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
     };
 
     // Filter products based on search query (Memoized for performance)

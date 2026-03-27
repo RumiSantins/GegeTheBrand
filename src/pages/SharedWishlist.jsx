@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Heart, ShoppingBag, Plus, Minus, Trash2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { API_BASE_URL } from '../api/config';
 
 const SharedWishlist = () => {
     const [searchParams] = useSearchParams();
@@ -24,7 +25,7 @@ const SharedWishlist = () => {
         try {
             const decoded = JSON.parse(atob(encoded));
 
-            fetch('http://localhost:8080/products')
+            fetch(`${API_BASE_URL}/products`)
                 .then(res => res.json())
                 .then(allProducts => {
                     const matched = decoded.map(item => {
@@ -33,7 +34,7 @@ const SharedWishlist = () => {
 
                         let parsedImages = [];
                         try { parsedImages = JSON.parse(product.images || '[]'); } catch (e) { }
-                        const imgs = parsedImages.map(url => url.startsWith('http') ? url : `http://localhost:8080${url}`);
+                        const imgs = parsedImages.map(url => url.startsWith('http') ? url : `${API_BASE_URL}${url}`);
 
                         return {
                             ...product,

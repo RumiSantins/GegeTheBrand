@@ -3,6 +3,7 @@ import ProductCard from '../Product/ProductCard';
 import QuickShopModal from '../Product/QuickShopModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
+import { API_BASE_URL } from '../../api/config';
 
 const ProductGrid = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -17,7 +18,7 @@ const ProductGrid = () => {
 
     const fetchSettings = async () => {
         try {
-            const res = await fetch('http://localhost:8080/site-settings');
+            const res = await fetch(`${API_BASE_URL}/site-settings`);
             if (res.ok) {
                 const data = await res.json();
                 setSettings(data);
@@ -29,7 +30,7 @@ const ProductGrid = () => {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch('http://localhost:8080/products');
+            const res = await fetch(`${API_BASE_URL}/products`);
             if (res.ok) {
                 const data = await res.json();
                 setProducts(data);
@@ -45,7 +46,7 @@ const ProductGrid = () => {
 
     const fetchCategories = async () => {
         try {
-            const res = await fetch('http://localhost:8080/categories');
+            const res = await fetch(`${API_BASE_URL}/categories`);
             if (res.ok) {
                 const data = await res.json();
                 const fetchedCategories = data.map(c => c.name);

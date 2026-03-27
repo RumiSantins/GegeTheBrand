@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../api/config';
 
 const HeroSlider = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -10,7 +11,7 @@ const HeroSlider = () => {
 
     useEffect(() => {
         // Fetch slides from backend
-        fetch('http://localhost:8080/hero-slides')
+        fetch(`${API_BASE_URL}/hero-slides`)
             .then(res => res.json())
             .then(data => {
                 if (data && data.length > 0) {
@@ -30,7 +31,7 @@ const HeroSlider = () => {
 
     const resolveImageUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') ? url : `http://localhost:8080${encodeURI(url)}`;
+        return url.startsWith('http') ? url : `${API_BASE_URL}${encodeURI(url)}`;
     };
 
     const handleCtaClick = (ctaUrl) => {

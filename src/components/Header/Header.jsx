@@ -5,6 +5,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import SearchModal from './SearchModal';
+import { API_BASE_URL } from '../../api/config';
 
 const Header = () => {
     const { toggleCart, cartCount } = useCart();
@@ -23,7 +24,7 @@ const Header = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const res = await fetch('http://localhost:8080/categories');
+                const res = await fetch(`${API_BASE_URL}/categories`);
                 if (res.ok) {
                     const data = await res.json();
                     setCategories(data);
@@ -35,7 +36,7 @@ const Header = () => {
 
         const fetchSettings = async () => {
             try {
-                const res = await fetch('http://localhost:8080/site-settings');
+                const res = await fetch(`${API_BASE_URL}/site-settings`);
                 if (res.ok) {
                     const data = await res.json();
                     if (data.announcement_text) {
@@ -53,7 +54,7 @@ const Header = () => {
 
     const resolveImageUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') ? url : `http://localhost:8080${url}`;
+        return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
     };
 
     useEffect(() => {

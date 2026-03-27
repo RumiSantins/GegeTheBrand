@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../../api/config';
 
 const ProductCard = ({ product, onQuickShop }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -11,7 +12,7 @@ const ProductCard = ({ product, onQuickShop }) => {
 
     const resolveImageUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') ? url : `http://localhost:8080${url}`;
+        return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
     };
 
     let parsedImages = [];
