@@ -9,7 +9,7 @@ export const ThemeProvider = ({ children }) => {
         // Check localStorage first, then system preference
         const saved = localStorage.getItem('gege_theme');
         if (saved) return saved === 'dark';
-        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return false; // Por defecto modo claro al iniciar (ignorando sistema)
     });
 
     useEffect(() => {
