@@ -17,7 +17,7 @@ docker compose up -d nginx
 
 # Solicitar el certificado
 # --staging se puede usar para pruebas, pero aquí iremos directo a producción
-docker compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot \
+docker compose run --rm --entrypoint "certbot" certbot certonly --webroot --webroot-path=/var/www/certbot \
     --email $EMAIL --agree-tos --no-eff-email \
     -d $DOMAIN -d www.$DOMAIN
 
