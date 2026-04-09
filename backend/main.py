@@ -131,6 +131,10 @@ origins = [
     "http://127.0.0.1:5173",
     "http://127.0.0.1:3000",
     "http://34.176.8.184:3000",
+    "https://gegethebrand.com",
+    "https://www.gegethebrand.com",
+    "http://gegethebrand.com",
+    "http://www.gegethebrand.com",
 ]
 
 app.add_middleware(
