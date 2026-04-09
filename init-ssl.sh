@@ -9,19 +9,27 @@ EMAIL="gege.santi@hotmail.com"
 echo "### Generando certificado para $DOMAIN..."
 
 # Crear carpetas si no existen
-mkdir -p certbot/conf
+mkdir -p certbot/conf/live/$DOMAIN
 mkdir -p certbot/www
 
-# Iniciar nginx temporalmente para el reto de Let's Encrypt
+# Crear certificados dummy si no existen (para que nginx pueda arrancar la primera vez)
+if [ ! -f "certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
+    echo "### Creando certificados temporales para el arranque inicial..."
+    openssl req -x509 -nodes -newkey rsa:4096 -days 1\
+        -keyout "certbot/conf/live/$DOMAIN/privkey.pem" \
+        -out "certbot/conf/live/$DOMAIN/fullchain.pem" \
+        -subj "/CN=localhost"
+fi
+
+# Iniciar nginx para el reto de Let's Encrypt
 docker compose up -d nginx
 
-# Solicitar el certificado
-# --staging se puede usar para pruebas, pero aquí iremos directo a producción
+# Solicitar el certificado real
 docker compose run --rm --entrypoint "certbot" certbot certonly --webroot --webroot-path=/var/www/certbot \
     --email $EMAIL --agree-tos --no-eff-email \
     -d $DOMAIN -d www.$DOMAIN
 
-# Reiniciar nginx para que cargue los nuevos certificados
+# Reiniciar nginx para que cargue los nuevos certificados reales
 docker compose restart nginx
 
 echo "### ¡Proceso completado! Verifica entrando a https://$DOMAIN"
