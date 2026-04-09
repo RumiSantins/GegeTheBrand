@@ -78,6 +78,12 @@ const ProductCard = ({ product, onQuickShop }) => {
                         Agotado
                     </div>
                 )}
+
+                {product.is_offer && totalStock > 0 && (
+                    <div className="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">
+                        Oferta
+                    </div>
+                )}
             </div>
 
             <div className="flex flex-col flex-grow text-center mt-4">
@@ -85,7 +91,16 @@ const ProductCard = ({ product, onQuickShop }) => {
                 <h3 className="text-sm font-semibold mb-1 uppercase tracking-wide leading-tight group-hover:underline">
                     <Link to={`/product/${product.id}`}>{product.name}</Link>
                 </h3>
-                <p className="text-sm text-gray-900 dark:text-gray-100 font-bold mt-auto tracking-widest">S/ {formatPrice(product.price)}</p>
+                <div className="mt-auto">
+                    {product.is_offer ? (
+                        <p className="text-sm tracking-widest flex items-center justify-center gap-2">
+                            <span className="text-purple-600 font-bold">S/ {formatPrice(product.offer_price)}</span>
+                            <span className="text-gray-400 text-xs line-through">S/ {formatPrice(product.price)}</span>
+                        </p>
+                    ) : (
+                        <p className="text-sm text-gray-900 dark:text-gray-100 font-bold tracking-widest">S/ {formatPrice(product.price)}</p>
+                    )}
+                </div>
                 {uniqueColorObjects.length > 0 && (
                     <div className="flex items-center justify-center gap-1.5 mt-2">
                         {uniqueColorObjects.map((variant, idx) => (

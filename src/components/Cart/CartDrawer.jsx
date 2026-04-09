@@ -31,10 +31,10 @@ const CartDrawer = () => {
             items: cartItems.map(item => ({
                 product_id: item.id,
                 variant_id: item.variant_id || item.variantId || null,
-                product_name: item.name,
                 size: item.selectedSize + (item.selectedColor ? ` - ${item.selectedColor}` : ''),
                 quantity: item.quantity,
-                price_at_time: item.price
+                price_at_time: (item.is_offer && item.quantity >= (item.offer_min_qty || 1)) ? item.offer_price : (item.original_price || item.price),
+                is_offer: (item.is_offer && item.quantity >= (item.offer_min_qty || 1))
             }))
         };
 
@@ -68,17 +68,33 @@ const CartDrawer = () => {
         message += `• Dirección: [Completar]\n`;
         message += `• Distrito: [Completar]\n\n`;
 
+        let totalSavings = 0;
+        let hasOffers = false;
+
         message += `✨ *PRODUCTOS*\n`;
         cartItems.forEach(item => {
-            message += `• *${item.name.toUpperCase()}*\n`;
+            const isOfferApplied = item.is_offer && item.quantity >= (item.offer_min_qty || 1);
+            const itemPrice = isOfferApplied ? item.offer_price : (item.original_price || item.price);
+            
+            if (isOfferApplied) {
+                hasOffers = true;
+                totalSavings += ((item.original_price || item.price) - item.offer_price) * item.quantity;
+            }
+
+            message += `• *${item.name.toUpperCase()}*${isOfferApplied ? ' 🔥 (OFERTA APLICADA)' : ''}\n`;
             message += `  Talla/Color: ${item.selectedSize || 'Única'} ${item.selectedColor ? `- ${item.selectedColor}` : ''}\n`;
             message += `  Cantidad: ${item.quantity}\n`;
-            message += `  Precio: S/ ${item.price.toFixed(2)} c/u\n\n`;
+            message += `  Precio: S/ ${itemPrice.toFixed(2)}${isOfferApplied ? ` (Precio reg. S/ ${item.original_price.toFixed(2)})` : ''} c/u\n\n`;
         });
 
         message += `───────────────────────\n`;
         message += `💳 *METODO DE PAGO:* [Yape / Plin / Transferencia]\n`;
         message += `💰 *TOTAL PRODUCTOS: S/ ${cartTotal.toFixed(2)}*\n`;
+        
+        if (hasOffers) {
+            message += `🎉 *AHORRO TOTAL: S/ ${totalSavings.toFixed(2)}*\n`;
+        }
+
         message += `🚚 *COSTO DE ENVÍO:* [A calcular]\n`;
         message += `───────────────────────\n\n`;
         message += `💖 ¡Hola! Me gustaría concretar esta compra. Quedo atento/a para el pago.`;
@@ -196,6 +212,11 @@ const CartItem = ({ item, updateQuantity, removeFromCart }) => {
     const [imgSrc, setImgSrc] = React.useState(finalImage);
     const fallbackImage = "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&q=80&w=800";
 
+    // Calculate effective price for display
+    const isOfferApplied = item.is_offer && item.quantity >= (item.offer_min_qty || 1);
+    const effectivePrice = isOfferApplied ? item.offer_price : (item.original_price || item.price);
+    const showComparison = item.is_offer && !isOfferApplied;
+
     return (
         <div className="flex space-x-4">
             <div className="w-20 h-24 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden flex-shrink-0 relative">
@@ -209,7 +230,16 @@ const CartItem = ({ item, updateQuantity, removeFromCart }) => {
             <div className="flex-1">
                 <h3 className="font-bold text-sm font-header">{item.name}</h3>
                 <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">Talla/Color: {item.selectedSize || 'Única'} {item.selectedColor ? `- ${item.selectedColor}` : ''}</p>
-                <p className="text-sm font-bold mt-2">S/ {item.price.toFixed(2)}</p>
+                <div className="mt-2">
+                    <p className={`text-sm font-bold ${isOfferApplied ? 'text-purple-600' : ''}`}>
+                        S/ {effectivePrice.toFixed(2)}
+                    </p>
+                    {showComparison && (
+                        <p className="text-[10px] text-purple-500 font-bold uppercase">
+                            * Agrega {item.offer_min_qty - item.quantity} más para oferta
+                        </p>
+                    )}
+                </div>
             </div>
             <div className="flex flex-col justify-between items-end">
                 <button

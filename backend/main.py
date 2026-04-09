@@ -85,6 +85,30 @@ def create_db_and_tables():
         except:
             session.rollback()
 
+        try:
+            session.exec(text("ALTER TABLE product ADD COLUMN is_offer BOOLEAN DEFAULT 0"))
+            session.commit()
+        except:
+            session.rollback()
+
+        try:
+            session.exec(text("ALTER TABLE product ADD COLUMN offer_price FLOAT"))
+            session.commit()
+        except:
+            session.rollback()
+
+        try:
+            session.exec(text("ALTER TABLE orderitem ADD COLUMN is_offer BOOLEAN DEFAULT 0"))
+            session.commit()
+        except:
+            session.rollback()
+
+        try:
+            session.exec(text("ALTER TABLE product ADD COLUMN offer_min_qty INTEGER DEFAULT 1"))
+            session.commit()
+        except:
+            session.rollback()
+
 def get_session():
     with Session(engine) as session:
         yield session
@@ -565,6 +589,8 @@ def create_order(
         item["order_id"] = order.id
         if not item.get("variant_id"):
             item["variant_id"] = None
+        if not item.get("is_offer"):
+            item["is_offer"] = False
         order_item = OrderItem(**item)
         session.add(order_item)
         

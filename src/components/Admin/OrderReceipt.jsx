@@ -95,7 +95,10 @@ const OrderReceipt = () => {
                             {order.items.map((item, idx) => (
                                 <tr key={idx} className="border-b border-gray-100 last:border-0">
                                     <td className="py-3 text-left">
-                                        <div className="font-bold uppercase">{item.quantity}x {item.product_name}</div>
+                                        <div className="font-bold uppercase">
+                                            {item.quantity}x {item.product_name}
+                                            {item.is_offer && <span className="ml-2 text-[10px] text-purple-600 font-bold tracking-tight">(OFERTA)</span>}
+                                        </div>
                                         <div className="text-xs text-gray-500 uppercase mt-1">{item.size || 'Única'}</div>
                                     </td>
                                     <td className="py-3 text-right font-bold tabular-nums">
