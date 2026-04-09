@@ -37,7 +37,13 @@ export const CartProvider = ({ children }) => {
     const toggleCart = () => setIsCartOpen(!isCartOpen);
 
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-    const cartTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const cartTotal = cartItems.reduce((acc, item) => {
+        const minQty = item.offer_min_qty || 1;
+        const effectivePrice = (item.is_offer && item.quantity >= minQty) 
+            ? item.offer_price 
+            : (item.original_price || item.price);
+        return acc + (effectivePrice * item.quantity);
+    }, 0);
 
     const value = React.useMemo(() => ({
         cartItems,

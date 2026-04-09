@@ -119,7 +119,12 @@ const ProductDetail = () => {
             selectedSize,
             selectedColor,
             variant_id: currentVariant ? currentVariant.id : null,
-            quantity
+            quantity,
+            price: product.price, // original price
+            original_price: product.price,
+            offer_price: product.offer_price,
+            offer_min_qty: product.offer_min_qty,
+            is_offer: product.is_offer
         };
 
         addToCart(itemToAdd);
@@ -214,9 +219,32 @@ const ProductDetail = () => {
                             <h1 className="text-3xl md:text-4xl font-header font-bold uppercase tracking-tight mb-2">
                                 {product.name}
                             </h1>
-                            <p className="text-xl text-gray-900 dark:text-gray-100 tracking-widest mb-8">
-                                S/ {product.price.toFixed(2)}
-                            </p>
+                            <div className="flex items-center gap-3 mb-8">
+                                {product.is_offer ? (
+                                    <>
+                                        <p className="text-2xl text-purple-600 font-bold tracking-tight">
+                                            S/ {product.offer_price.toFixed(2)}
+                                        </p>
+                                        <p className="text-lg text-gray-400 line-through tracking-widest">
+                                            S/ {product.price.toFixed(2)}
+                                        </p>
+                                        <div className="flex flex-col">
+                                            <span className="bg-purple-600 text-white text-[10px] font-bold uppercase py-1 px-2 rounded-sm ml-2">
+                                                Oferta
+                                            </span>
+                                            {product.offer_min_qty > 1 && (
+                                                <span className="text-[10px] text-purple-500 font-bold uppercase mt-1 ml-2">
+                                                    * Llevando {product.offer_min_qty} o más
+                                                </span>
+                                            )}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className="text-xl text-gray-900 dark:text-gray-100 tracking-widest">
+                                        S/ {product.price.toFixed(2)}
+                                    </p>
+                                )}
+                            </div>
 
                             <div className="mb-8">
                                 <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">

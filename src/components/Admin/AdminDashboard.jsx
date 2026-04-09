@@ -296,7 +296,16 @@ const AdminDashboard = () => {
                                                         <div className="font-semibold">{product.category}</div>
                                                         <div className="text-xs text-gray-500">{uniqueSizes || 'N/A'}</div>
                                                     </td>
-                                                    <td className="px-6 py-4">${product.price.toFixed(2)}</td>
+                                                    <td className="px-6 py-4">
+                                                        {product.is_offer ? (
+                                                            <div className="flex flex-col">
+                                                                <span className="text-purple-600 font-bold">S/ {product.offer_price?.toFixed(2)}</span>
+                                                                <span className="text-gray-400 text-[10px] line-through">S/ {product.price.toFixed(2)}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="font-medium">S/ {product.price.toFixed(2)}</span>
+                                                        )}
+                                                    </td>
                                                     <td className="px-6 py-4">
                                                         <div className="font-bold">{totalStock}</div>
                                                         <div className="text-[10px] text-gray-500">{product.variants?.length || 0} variantes</div>

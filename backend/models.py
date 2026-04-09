@@ -84,6 +84,10 @@ class Product(SQLModel, table=True):
     
     variants: List[ProductVariant] = Relationship(back_populates="product", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     related_product_id: Optional[UUID] = Field(default=None)
+    
+    is_offer: bool = Field(default=False)
+    offer_price: Optional[float] = None
+    offer_min_qty: int = Field(default=1)
 
 class Order(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
@@ -107,5 +111,6 @@ class OrderItem(SQLModel, table=True):
     size: str
     quantity: int
     price_at_time: float
+    is_offer: bool = Field(default=False)
     
     order: "Order" = Relationship(back_populates="items")

@@ -11,6 +11,9 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
         description: '',
         category: 'General',
         related_product_id: '',
+        is_offer: false,
+        offer_price: '',
+        offer_min_qty: 1,
     });
 
     const [allProducts, setAllProducts] = useState([]);
@@ -60,6 +63,9 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                 description: initialData.description || '',
                 category: initialData.category || 'General',
                 related_product_id: initialData.related_product_id || '',
+                is_offer: initialData.is_offer || false,
+                offer_price: initialData.offer_price || '',
+                offer_min_qty: initialData.offer_min_qty || 1,
             });
 
             if (initialData.variants) {
@@ -150,6 +156,9 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
             description: formData.description,
             category: formData.category,
             related_product_id: formData.related_product_id || null,
+            is_offer: formData.is_offer,
+            offer_price: formData.is_offer ? parseFloat(formData.offer_price) : null,
+            offer_min_qty: formData.is_offer ? parseInt(formData.offer_min_qty) || 1 : 1,
             images: finalImageUrls,
             variants: variants.map(v => ({
                 size: v.size,
@@ -212,6 +221,55 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                             {categories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
                         </select>
                     </div>
+                </div>
+
+                <div className="bg-purple-50 p-4 border border-purple-100 rounded space-y-3">
+                    <div className="flex items-center gap-2">
+                        <input 
+                            type="checkbox" 
+                            id="is_offer"
+                            checked={formData.is_offer} 
+                            onChange={e => setFormData({ ...formData, is_offer: e.target.checked })} 
+                            className="w-4 h-4 accent-purple-600" 
+                        />
+                        <label htmlFor="is_offer" className="text-xs font-bold uppercase cursor-pointer select-none">¿Poner este producto en OFERTA?</label>
+                    </div>
+                    
+                    {formData.is_offer && (
+                        <div className="animate-in fade-in slide-in-from-top-1 duration-300">
+                            <label className="block text-xs font-bold uppercase mb-1">Precio de Oferta ($) *</label>
+                            <input 
+                                required={formData.is_offer} 
+                                type="number" 
+                                step="0.01" 
+                                value={formData.offer_price} 
+                                onChange={e => setFormData({ ...formData, offer_price: e.target.value })} 
+                                className="w-full border p-2 text-sm bg-white" 
+                                placeholder="Ej. 149.90"
+                            />
+                            <p className="text-[10px] text-purple-600 mt-1 uppercase italic font-medium">
+                                El precio original (${formData.price || '0.00'}) se mostrará tachado.
+                            </p>
+                        </div>
+                    )}
+
+                    {formData.is_offer && (
+                        <div className="animate-in fade-in slide-in-from-top-1 duration-300">
+                            <label className="block text-xs font-bold uppercase mb-1">Unidades mínimas para aplicar oferta *</label>
+                            <input 
+                                required={formData.is_offer} 
+                                type="number" 
+                                min="1"
+                                value={formData.offer_min_qty} 
+                                onChange={e => setFormData({ ...formData, offer_min_qty: e.target.value })} 
+                                className="w-full border p-2 text-sm bg-white" 
+                                placeholder="Ej. 1 (oferta directa) o 3 (llevando 3)"
+                            />
+                            <p className="text-[10px] text-purple-400 mt-1 tracking-wider uppercase font-bold">
+                                Indica cuántas prendas del mismo tipo debe comprar el cliente para que el precio cambie al de oferta.
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 <div>
