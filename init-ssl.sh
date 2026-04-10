@@ -8,33 +8,16 @@ EMAIL="gege.santi@hotmail.com"
 
 echo "### Generando certificado para $DOMAIN..."
 
-# Crear carpetas si no existen
-mkdir -p certbot/conf/live/$DOMAIN
-mkdir -p certbot/www
+# Asegurarnos de que nada esté usando el puerto 80/443
+docker compose down
 
-# Crear certificados dummy si no existen (para que nginx pueda arrancar la primera vez)
-if [ ! -f "certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
-    echo "### Creando certificados temporales para el arranque inicial..."
-    openssl req -x509 -nodes -newkey rsa:4096 -days 1\
-        -keyout "certbot/conf/live/$DOMAIN/privkey.pem" \
-        -out "certbot/conf/live/$DOMAIN/fullchain.pem" \
-        -subj "/CN=localhost"
-fi
-
-# Iniciar nginx para el reto de Let's Encrypt
-docker compose up -d nginx
-
-# Solicitar el certificado real
-# Borramos el temporal justo antes para que certbot no tenga conflictos de carpetas
-sudo rm -rf certbot/conf/live/$DOMAIN
-sudo rm -rf certbot/conf/archive/$DOMAIN
-sudo rm -f certbot/conf/renewal/$DOMAIN.conf
-
-docker compose run --rm --entrypoint "certbot" certbot certonly --webroot --webroot-path=/var/www/certbot \
+# Solicitar el certificado real usando modo STANDALONE
+# Esto levantará un servidor temporal en el puerto 80 para validar el dominio
+docker compose run --rm -p 80:80 --entrypoint "certbot" certbot certonly --standalone \
     --email $EMAIL --agree-tos --no-eff-email \
     -d $DOMAIN -d www.$DOMAIN
 
-# Reiniciar nginx para que cargue los nuevos certificados reales
-docker compose restart nginx
+# Una vez obtenido, levantamos todo el sistema
+docker compose up -d
 
 echo "### ¡Proceso completado! Verifica entrando a https://$DOMAIN"
