@@ -25,6 +25,11 @@ fi
 docker compose up -d nginx
 
 # Solicitar el certificado real
+# Borramos el temporal justo antes para que certbot no tenga conflictos de carpetas
+sudo rm -rf certbot/conf/live/$DOMAIN
+sudo rm -rf certbot/conf/archive/$DOMAIN
+sudo rm -f certbot/conf/renewal/$DOMAIN.conf
+
 docker compose run --rm --entrypoint "certbot" certbot certonly --webroot --webroot-path=/var/www/certbot \
     --email $EMAIL --agree-tos --no-eff-email \
     -d $DOMAIN -d www.$DOMAIN
