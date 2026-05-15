@@ -80,6 +80,12 @@ def create_db_and_tables():
             session.rollback()
 
         try:
+            session.exec(text("ALTER TABLE productvariant ADD COLUMN image_url VARCHAR"))
+            session.commit()
+        except:
+            session.rollback()
+
+        try:
             session.exec(text("ALTER TABLE product ADD COLUMN is_offer BOOLEAN DEFAULT 0"))
             session.commit()
         except:
@@ -529,16 +535,25 @@ def update_product(
             
     # Update variants if provided
     if variants_data is not None:
-        # Simplest approach: Delete existing variants and re-create them
-        for v in db_product.variants:
-            session.delete(v)
-        session.commit() # commit deletion
+        logger.info(f"Updating variants for product {product_id}. Count: {len(variants_data)}")
+        
+        # We'll clear the current variants. Since we have cascade="all, delete-orphan",
+        # assigning an empty list will delete them from the DB on commit.
+        db_product.variants = []
         
         for v_data in variants_data:
-            v_data.pop("id", None) # remove id if exists from frontend to create new
+            # Prepare data: remove ID and ensure product_id is correct
+            v_data.pop("id", None)
             v_data["product_id"] = db_product.id
-            new_variant = ProductVariant(**v_data)
-            session.add(new_variant)
+            
+            # Create new variant object
+            # We filter the keys to ensure we only pass what's in the model
+            # This avoids errors if the frontend sends extra fields like 'image_preview'
+            allowed_keys = ["product_id", "size", "color", "color_hex", "stock", "image_url"]
+            filtered_data = {k: v for k, v in v_data.items() if k in allowed_keys}
+            
+            new_variant = ProductVariant(**filtered_data)
+            db_product.variants.append(new_variant)
             
     session.add(db_product)
     session.commit()

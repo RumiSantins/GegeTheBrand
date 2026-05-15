@@ -92,6 +92,22 @@ const ProductDetail = () => {
 
     // Extract unique sizes and colors from variants
     const variants = product.variants || [];
+
+    // Image switching logic based on color
+    const selectedVariantForColor = variants.find(v => v.color === selectedColor && v.image_url);
+    const variantImgUrl = selectedVariantForColor ? 
+        (selectedVariantForColor.image_url.startsWith('http') ? selectedVariantForColor.image_url : `${API_BASE_URL}${selectedVariantForColor.image_url}`) 
+        : null;
+
+    // We want to show the variant image first if it exists
+    let displayImages = [...imgs];
+    if (variantImgUrl) {
+        const existingIdx = displayImages.indexOf(variantImgUrl);
+        if (existingIdx !== -1) {
+            displayImages.splice(existingIdx, 1);
+        }
+        displayImages.unshift(variantImgUrl);
+    }
     const sizesArray = [...new Set(variants.map(v => v.size))];
     const colorsArray = [...new Set(variants.map(v => v.color))];
 
@@ -167,9 +183,18 @@ const ProductDetail = () => {
                 <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
                     {/* Images Column */}
                     <div className="w-full lg:w-1/2 flex flex-col gap-4">
-                        {imgs.length > 0 ? imgs.map((img, idx) => (
-                            <div key={idx} className="aspect-[3/4] bg-gray-100 dark:bg-gray-800 relative">
-                                <img
+                        {displayImages.length > 0 ? displayImages.map((img, idx) => (
+                            <motion.div 
+                                key={img} 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8, ease: "easeOut", delay: idx * 0.1 }}
+                                className="aspect-[3/4] bg-gray-100 dark:bg-gray-800 relative"
+                            >
+                                <motion.img
+                                    initial={{ scale: 1.05 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ duration: 1.2, ease: "easeOut" }}
                                     src={img}
                                     alt={`${product.name} view ${idx + 1}`}
                                     className="w-full h-full object-cover"
@@ -205,7 +230,7 @@ const ProductDetail = () => {
                                         </Link>
                                     </div>
                                 )}
-                            </div>
+                            </motion.div>
                         )) : (
                             <div className="aspect-[3/4] bg-gray-100 flex items-center justify-center">
                                 Sin imagen

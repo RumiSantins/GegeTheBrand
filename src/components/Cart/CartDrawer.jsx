@@ -8,6 +8,21 @@ import { API_BASE_URL } from '../../api/config';
 const CartDrawer = () => {
     const { isCartOpen, toggleCart, cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
 
+    // Prevent body scroll when open
+    React.useEffect(() => {
+        if (isCartOpen) {
+            document.body.style.overflow = 'hidden';
+            if (window.lenis) window.lenis.stop();
+        } else {
+            document.body.style.overflow = 'unset';
+            if (window.lenis) window.lenis.start();
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+            if (window.lenis) window.lenis.start();
+        };
+    }, [isCartOpen]);
+
     const handleCheckout = async () => {
         // Enviar pedido al backend primero
         const orderData = {

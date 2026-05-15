@@ -46,40 +46,44 @@ const HeroSlider = () => {
     if (slides.length === 0) return <div className="h-[80vh] w-full bg-[#07020f] flex items-center justify-center text-white transition-colors duration-500">Cargando...</div>;
 
     return (
-        <div className="relative h-[80vh] w-full overflow-hidden bg-[#07020f] text-white">
+        <div className="relative h-[70vh] md:h-[85vh] w-full overflow-hidden bg-[#07020f] text-white">
             <AnimatePresence mode='wait'>
                 <motion.div
                     key={currentSlide}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 1 }}
+                    transition={{ duration: 1.2 }}
                     className="absolute inset-0"
                 >
-                    {/* Background Image */}
-                    <div
+                    {/* Background Image with subtle zoom effect */}
+                    <motion.div
+                        initial={{ scale: 1.1 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 5, ease: "easeOut" }}
                         className="absolute inset-0 bg-cover bg-center"
                         style={{ backgroundImage: `url('${resolveImageUrl(slides[currentSlide].image_url)}')` }}
                     >
-                        <div className="absolute inset-0 bg-purple-900/10 dark:bg-[#07020f]/40" /> {/* Purple-tinted Overlay */}
-                    </div>
-
+                        {/* More subtle and dynamic overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/60" />
+                    </motion.div>
+ 
                     {/* Content */}
-                    <div className="absolute inset-0 flex flex-col justify-center items-center text-center">
-                        <div className="container mx-auto">
+                    <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-6">
+                        <div className="container mx-auto max-w-4xl">
                             <motion.h2
-                                initial={{ y: 20, opacity: 0 }}
+                                initial={{ y: 30, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.5, duration: 0.8 }}
-                                className="text-4xl md:text-6xl font-header font-bold mb-4 tracking-wider uppercase"
+                                transition={{ delay: 0.4, duration: 1, ease: "easeOut" }}
+                                className="text-3xl md:text-7xl font-header font-black mb-4 md:mb-6 tracking-tight md:tracking-wider uppercase leading-[1.1] md:leading-none"
                             >
                                 {slides[currentSlide].title}
                             </motion.h2>
                             <motion.p
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.8 }}
-                                className="text-lg md:text-xl font-body font-light mb-8 max-w-2xl mx-auto"
+                                transition={{ delay: 0.6, duration: 1, ease: "easeOut" }}
+                                className="text-sm md:text-xl font-body font-light mb-8 md:mb-10 max-w-xl mx-auto opacity-90 tracking-wide"
                             >
                                 {slides[currentSlide].subtitle}
                             </motion.p>
@@ -87,9 +91,9 @@ const HeroSlider = () => {
                                 <motion.button
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.9, duration: 0.8 }}
+                                    transition={{ delay: 0.8, duration: 1 }}
                                     onClick={() => handleCtaClick(slides[currentSlide].cta_url)}
-                                    className="btn-accent flex items-center space-x-2 group"
+                                    className="px-8 py-3 md:px-10 md:py-4 bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-[0.2em] hover:bg-purple-600 hover:text-white transition-all duration-500 shadow-xl flex items-center space-x-3 group"
                                 >
                                     <span>{slides[currentSlide].cta_text}</span>
                                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

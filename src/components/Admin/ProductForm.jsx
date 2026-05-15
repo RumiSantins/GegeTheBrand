@@ -69,7 +69,10 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
             });
 
             if (initialData.variants) {
-                setVariants(initialData.variants.map(v => ({ ...v })));
+                setVariants(initialData.variants.map(v => ({ 
+                    ...v, 
+                    image_preview: v.image_url ? (v.image_url.startsWith('http') ? v.image_url : `${API_BASE_URL}${v.image_url}`) : '' 
+                })));
             }
 
             if (initialData.images) {
@@ -101,12 +104,19 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
     };
 
     const handleAddVariant = () => {
-        setVariants([...variants, { size: '', color: '', color_hex: '#FFFFFF', stock: 0 }]);
+        setVariants([...variants, { size: '', color: '', color_hex: '#FFFFFF', stock: 0, image_url: '', image_file: null, image_preview: '' }]);
     };
 
     const handleRemoveVariant = (index) => {
         const newVariants = [...variants];
         newVariants.splice(index, 1);
+        setVariants(newVariants);
+    };
+
+    const handleVariantImageChange = (index, file) => {
+        const newVariants = [...variants];
+        newVariants[index].image_file = file;
+        newVariants[index].image_preview = URL.createObjectURL(file);
         setVariants(newVariants);
     };
 
@@ -150,6 +160,38 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
             }
         }
 
+        // 2. Upload variant images if they are files
+        console.log("Processing variants:", variants);
+        const finalVariants = [];
+        for (const v of variants) {
+            let variantImageUrl = v.image_url || '';
+            
+            if (v.image_file) {
+                console.log(`Uploading new image for variant ${v.size} - ${v.color}`);
+                const uploadedUrl = await uploadImage(v.image_file);
+                if (uploadedUrl) {
+                    variantImageUrl = uploadedUrl;
+                }
+            } else if (v.image_preview) {
+                // Keep existing relative path if it's already there, or extract it from preview URL
+                if (v.image_preview.startsWith('http')) {
+                    variantImageUrl = v.image_preview.replace(API_BASE_URL, '').replace('http://localhost:8080', '');
+                } else if (v.image_preview.startsWith('/static')) {
+                    variantImageUrl = v.image_preview;
+                }
+            }
+            
+            console.log(`Final image_url for variant: ${variantImageUrl}`);
+            
+            finalVariants.push({
+                size: v.size,
+                color: v.color,
+                color_hex: v.color_hex || '#FFFFFF',
+                stock: parseInt(v.stock) || 0,
+                image_url: variantImageUrl
+            });
+        }
+
         const payload = {
             name: formData.name,
             price: parseFloat(formData.price),
@@ -160,12 +202,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
             offer_price: formData.is_offer ? parseFloat(formData.offer_price) : null,
             offer_min_qty: formData.is_offer ? parseInt(formData.offer_min_qty) || 1 : 1,
             images: finalImageUrls,
-            variants: variants.map(v => ({
-                size: v.size,
-                color: v.color,
-                color_hex: v.color_hex || '#FFFFFF',
-                stock: parseInt(v.stock) || 0
-            }))
+            variants: finalVariants
         };
 
         const method = initialData ? 'PUT' : 'POST';
@@ -309,14 +346,29 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                     <div className="space-y-2">
                         {variants.map((v, i) => (
                             <div key={i} className="flex flex-wrap md:flex-nowrap gap-2 items-center bg-gray-50 p-2 border">
-                                <input required type="text" placeholder="Talla (ej. S, 39, Única)" value={v.size} onChange={e => updateVariant(i, 'size', e.target.value)} className="w-[80px] md:w-1/4 border p-2 text-sm" />
-                                <input required type="text" placeholder="Color (ej. Rojo)" value={v.color} onChange={e => updateVariant(i, 'color', e.target.value)} className="flex-1 md:w-1/3 border p-2 text-sm" />
+                                {/* Variant Image Upload */}
+                                <div className="w-12 h-12 bg-white border relative flex items-center justify-center overflow-hidden shrink-0">
+                                    {v.image_preview ? (
+                                        <img src={v.image_preview} alt="variant" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Upload size={14} className="text-gray-400" />
+                                    )}
+                                    <input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        onChange={(e) => handleVariantImageChange(i, e.target.files[0])} 
+                                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                                    />
+                                </div>
+
+                                <input required type="text" placeholder="Talla" value={v.size} onChange={e => updateVariant(i, 'size', e.target.value)} className="w-[60px] md:w-[80px] border p-2 text-sm" />
+                                <input required type="text" placeholder="Color" value={v.color} onChange={e => updateVariant(i, 'color', e.target.value)} className="flex-1 md:w-1/3 border p-2 text-sm" />
 
                                 <div className="flex items-center gap-1 border bg-white p-1" title="Color visual (Hex)">
                                     <input type="color" value={v.color_hex || '#FFFFFF'} onChange={e => updateVariant(i, 'color_hex', e.target.value)} className="w-8 h-8 cursor-pointer p-0 border-none bg-transparent" />
                                 </div>
 
-                                <input required type="number" min="0" placeholder="Stock" value={v.stock} onChange={e => updateVariant(i, 'stock', e.target.value)} className="w-[70px] border p-2 text-sm" />
+                                <input required type="number" min="0" placeholder="Stock" value={v.stock} onChange={e => updateVariant(i, 'stock', e.target.value)} className="w-[60px] md:w-[70px] border p-2 text-sm" />
                                 <button type="button" onClick={() => handleRemoveVariant(i)} className="text-red-500 p-2 hover:bg-red-50 transition">
                                     <Trash2 size={16} />
                                 </button>

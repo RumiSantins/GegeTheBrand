@@ -65,6 +65,7 @@ class ProductVariant(SQLModel, table=True):
     color: str
     color_hex: Optional[str] = Field(default="#FFFFFF")
     stock: int = Field(default=0)
+    image_url: Optional[str] = None
     
     product: "Product" = Relationship(back_populates="variants")
 
