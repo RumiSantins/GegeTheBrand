@@ -45,9 +45,16 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
     } catch (e) { }
 
     const imgs = parsedImages.map(url => url.startsWith('http') ? url : `${API_BASE_URL}${url}`);
-    const mainImage = imgs.length > 0 ? imgs[0] : '';
-
+    
     const variants = product.variants || [];
+    
+    // Dynamic Main Image based on color
+    const selectedVariantForColor = variants.find(v => v.color === selectedColor && v.image_url);
+    const variantImgUrl = selectedVariantForColor ? 
+        (selectedVariantForColor.image_url.startsWith('http') ? selectedVariantForColor.image_url : `${API_BASE_URL}${selectedVariantForColor.image_url}`) 
+        : null;
+
+    const mainImage = variantImgUrl || (imgs.length > 0 ? imgs[0] : '');
     const sizesArray = [...new Set(variants.map(v => v.size))];
     const colorsArray = [...new Set(variants.map(v => v.color))];
 
@@ -115,12 +122,29 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
                             <div className="flex flex-col md:flex-row p-6 gap-8">
                                 {/* Left: Image & Info */}
                                 <div className="w-full md:w-1/2 flex flex-col">
-                                    <div className="aspect-[3/4] bg-gray-100 mb-4 rounded overflow-hidden">
-                                        {mainImage ? (
-                                            <img src={mainImage} className="w-full h-full object-cover" alt={product.name} />
-                                        ) : (
-                                            <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 text-sm">Sin imagen</div>
-                                        )}
+                                    <div className="aspect-[3/4] bg-gray-100 mb-4 rounded overflow-hidden relative">
+                                        <AnimatePresence mode="wait">
+                                            {mainImage ? (
+                                                <motion.img 
+                                                    key={mainImage}
+                                                    initial={{ opacity: 0, scale: 1.05 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    exit={{ opacity: 0 }}
+                                                    transition={{ duration: 0.4, ease: "easeOut" }}
+                                                    src={mainImage} 
+                                                    className="w-full h-full object-cover" 
+                                                    alt={product.name} 
+                                                />
+                                            ) : (
+                                                <motion.div 
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    className="w-full h-full flex flex-col items-center justify-center text-gray-400 text-sm"
+                                                >
+                                                    Sin imagen
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
                                     <h3 className="font-header font-bold text-xl uppercase tracking-tight mb-2 dark:text-white">{product.name}</h3>
                                     <p className="text-lg text-gray-900 dark:text-gray-100 font-bold mb-4 tracking-widest">S/. {product.price.toFixed(2)}</p>
