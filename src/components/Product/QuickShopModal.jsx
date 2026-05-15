@@ -22,6 +22,21 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
         }
     }, [isOpen, product]);
 
+    // Prevent body scroll when open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+            if (window.lenis) window.lenis.stop();
+        } else {
+            document.body.style.overflow = 'unset';
+            if (window.lenis) window.lenis.start();
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+            if (window.lenis) window.lenis.start();
+        };
+    }, [isOpen]);
+
     if (!product) return null;
 
     let parsedImages = [];

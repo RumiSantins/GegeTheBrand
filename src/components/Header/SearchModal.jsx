@@ -45,13 +45,16 @@ const SearchModal = ({ isOpen, onClose, categories = [] }) => {
 
             // Prevent body scroll
             document.body.style.overflow = 'hidden';
+            if (window.lenis) window.lenis.stop();
         } else {
             // Restore body scroll
             document.body.style.overflow = 'unset';
+            if (window.lenis) window.lenis.start();
         }
 
         return () => {
             document.body.style.overflow = 'unset';
+            if (window.lenis) window.lenis.start();
         };
     }, [isOpen]);
 
