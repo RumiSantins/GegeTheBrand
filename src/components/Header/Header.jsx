@@ -115,8 +115,6 @@ const Header = () => {
                                 <span className={`block text-3xl md:text-4xl font-serif font-black tracking-tighter leading-none transition-all duration-500 group-hover:tracking-[0.05em] ${isSolidHeader ? 'text-black dark:text-white' : 'text-white'}`}>
                                     GEGE
                                 </span>
-                                {/* Floating Accent Dot */}
-                                <div className="absolute -top-1 -right-2 w-1 h-1 rounded-full bg-accent-gradient opacity-0 group-hover:opacity-100 transition-all duration-500 scale-0 group-hover:scale-100 shadow-[0_0_8px_#F472B6]"></div>
                             </div>
 
                             {/* Stylized Subtitle with Expanding Lines */}
