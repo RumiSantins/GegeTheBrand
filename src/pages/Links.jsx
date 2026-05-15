@@ -30,51 +30,53 @@ const Links = () => {
   return (
     <div className="min-h-screen bg-pink-50 dark:bg-[#07020f] flex flex-col items-center py-12 px-6 transition-colors duration-500">
       {/* Profile Section - Integrated Signature Logo */}
-      <div className="flex flex-col items-center mb-12 group">
+      <div className="flex flex-col items-center mb-10 group">
         <div className="flex flex-col items-center justify-center transition-all duration-700">
           {/* Main Name with Breathing Effect */}
           <div className="relative">
-            <span className="block text-5xl md:text-7xl font-serif font-black tracking-tighter leading-none transition-all duration-500 group-hover:tracking-[0.05em] text-black dark:text-white">
+            <span className="block text-4xl md:text-7xl font-serif font-black tracking-tighter leading-none transition-all duration-500 group-hover:tracking-[0.05em] text-black dark:text-white">
               GEGE
             </span>
           </div>
 
           {/* Stylized Subtitle with Expanding Lines */}
-          <div className="flex items-center gap-4 mt-3 overflow-hidden">
-            <div className="h-[0.5px] w-4 transition-all duration-700 group-hover:w-12 bg-black/20 dark:bg-white/20 group-hover:bg-purple-400"></div>
-            <span className="block text-[0.6rem] md:text-[0.7rem] font-sans font-black tracking-[0.5em] transition-all duration-500 uppercase text-gray-500 dark:text-gray-400 group-hover:text-purple-500 dark:group-hover:text-purple-400">
+          <div className="flex items-center gap-3 mt-2 md:mt-3 overflow-hidden">
+            <div className="h-[0.5px] w-3 md:w-4 transition-all duration-700 group-hover:w-12 bg-black/20 dark:bg-white/20 group-hover:bg-purple-400"></div>
+            <span className="block text-[0.5rem] md:text-[0.7rem] font-sans font-black tracking-[0.5em] transition-all duration-500 uppercase text-gray-500 dark:text-gray-400 group-hover:text-purple-500 dark:group-hover:text-purple-400">
               The Brand
             </span>
-            <div className="h-[0.5px] w-4 transition-all duration-700 group-hover:w-12 bg-black/20 dark:bg-white/20 group-hover:bg-purple-400"></div>
+            <div className="h-[0.5px] w-3 md:w-4 transition-all duration-700 group-hover:w-12 bg-black/20 dark:bg-white/20 group-hover:bg-purple-400"></div>
           </div>
         </div>
 
-        <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-8 font-black tracking-[0.3em] uppercase">
+        <p className="text-[9px] text-gray-400 dark:text-gray-500 text-center mt-6 font-black tracking-[0.3em] uppercase">
           Estilo & Esencia
         </p>
       </div>
 
 
       {/* Links List */}
-      <div className="w-full max-w-md space-y-4">
+      <div className="w-full max-w-[280px] md:max-w-md space-y-2 md:space-y-4">
         {socialLinks.map((link, index) => (
           <a
             key={index}
             href={link.url}
             target={link.url.startsWith('http') ? "_blank" : "_self"}
             rel="noopener noreferrer"
-            className={`flex items-center justify-between w-full p-4 rounded-full transition-all duration-500 shadow-sm hover:shadow-xl border hover:scale-[1.02] active:scale-95 group ${link.highlight
+            className={`flex items-center justify-between w-full py-2.5 px-4 md:p-4 rounded-full transition-all duration-500 shadow-sm hover:shadow-xl border hover:scale-[1.02] active:scale-95 group ${link.highlight
                 ? 'bg-black dark:bg-white text-white dark:text-black border-transparent font-bold ring-4 ring-black/5 dark:ring-white/5'
                 : 'bg-white/90 dark:bg-[#110620] backdrop-blur-md text-black dark:text-gray-200 border-white/20 dark:border-[#1a0e30]'
               }`}
           >
-            <div className={`w-10 flex justify-center transition-transform duration-500 group-hover:scale-110 ${link.highlight ? 'text-white dark:text-black' : 'text-black dark:text-purple-400'}`}>
-              {link.icon}
+            <div className={`w-6 md:w-10 flex justify-center transition-transform duration-500 group-hover:scale-110 ${link.highlight ? 'text-white dark:text-black' : 'text-black dark:text-purple-400'}`}>
+              <div className="scale-75 md:scale-100">
+                {link.icon}
+              </div>
             </div>
-            <span className="flex-1 text-center font-bold tracking-[0.15em] uppercase text-[11px] md:text-xs">
+            <span className="flex-1 text-center font-bold tracking-[0.15em] uppercase text-[9px] md:text-xs">
               {link.name}
             </span>
-            <div className="w-10"></div>
+            <div className="w-6 md:w-10"></div>
           </a>
         ))}
       </div>
