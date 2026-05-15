@@ -67,23 +67,30 @@ const ProductCard = ({ product, onQuickShop }) => {
                     </button>
                 </div>
 
-                {totalStock <= 5 && totalStock > 0 && (
-                    <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">
-                        Pocas unidades
-                    </div>
-                )}
+                <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-20">
+                    {totalStock <= 5 && totalStock > 0 && (
+                        <div className="bg-red-600/90 backdrop-blur-sm text-white text-[9px] font-bold uppercase tracking-[0.15em] px-2.5 py-1.5 shadow-lg">
+                            Pocas unidades
+                        </div>
+                    )}
 
-                {totalStock === 0 && (
-                    <div className="absolute top-2 left-2 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">
-                        Agotado
-                    </div>
-                )}
+                    {totalStock === 0 && (
+                        <div className="bg-gray-900/90 backdrop-blur-sm text-white text-[9px] font-bold uppercase tracking-[0.15em] px-2.5 py-1.5 shadow-lg">
+                            Agotado
+                        </div>
+                    )}
 
-                {product.is_offer && totalStock > 0 && (
-                    <div className="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1">
-                        Oferta
-                    </div>
-                )}
+                    {product.is_offer && totalStock > 0 && (
+                        <div className="bg-purple-600/90 backdrop-blur-sm text-white text-[9px] font-bold uppercase tracking-[0.15em] px-2.5 py-1.5 shadow-lg flex items-center gap-1.5">
+                            <span>Oferta</span>
+                            {product.price > 0 && product.offer_price > 0 && (
+                                <span className="bg-white text-purple-600 px-1 rounded-sm text-[8px] font-black">
+                                    -{Math.round(((product.price - product.offer_price) / product.price) * 100)}%
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="flex flex-col flex-grow text-center mt-4">

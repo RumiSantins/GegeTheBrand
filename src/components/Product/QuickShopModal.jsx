@@ -146,8 +146,27 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
                                             )}
                                         </AnimatePresence>
                                     </div>
-                                    <h3 className="font-header font-bold text-xl uppercase tracking-tight mb-2 dark:text-white">{product.name}</h3>
-                                    <p className="text-lg text-gray-900 dark:text-gray-100 font-bold mb-4 tracking-widest">S/. {product.price.toFixed(2)}</p>
+                                    <h3 className="font-header font-bold text-xl uppercase tracking-tight mb-1 dark:text-white">{product.name}</h3>
+                                    
+                                    <div className="flex items-center gap-3 mb-6">
+                                        {product.is_offer ? (
+                                            <>
+                                                <p className="text-xl text-purple-600 font-bold tracking-tight">
+                                                    S/ {product.offer_price.toFixed(2)}
+                                                </p>
+                                                <p className="text-sm text-gray-400 line-through tracking-widest">
+                                                    S/ {product.price.toFixed(2)}
+                                                </p>
+                                                <span className="text-purple-600 font-bold text-[10px] uppercase tracking-wider">
+                                                    {Math.round(((product.price - product.offer_price) / product.price) * 100)}% DCTO.
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <p className="text-lg text-gray-900 dark:text-gray-100 font-bold tracking-widest">
+                                                S/ {product.price.toFixed(2)}
+                                            </p>
+                                        )}
+                                    </div>
 
                                     <Link to={`/product/${product.id}`} className="text-sm border-b border-black dark:border-white self-start pb-1 uppercase font-bold tracking-widest hover:text-gray-600 dark:hover:text-gray-400 transition">
                                         Ver detalles del producto

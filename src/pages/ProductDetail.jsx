@@ -181,59 +181,77 @@ const ProductDetail = () => {
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
-                    {/* Images Column */}
-                    <div className="w-full lg:w-1/2 flex flex-col gap-4">
-                        {displayImages.length > 0 ? displayImages.map((img, idx) => (
-                            <motion.div 
-                                key={img} 
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, ease: "easeOut", delay: idx * 0.1 }}
-                                className="aspect-[3/4] bg-gray-100 dark:bg-gray-800 relative"
-                            >
-                                <motion.img
-                                    initial={{ scale: 1.05 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ duration: 1.2, ease: "easeOut" }}
-                                    src={img}
-                                    alt={`${product.name} view ${idx + 1}`}
-                                    className="w-full h-full object-cover"
-                                />
-                                {idx === 0 && relatedProduct && (
-                                    <div className="absolute bottom-12 left-0 z-20 group/stl">
-                                        <Link 
-                                            to={`/product/${relatedProduct.id}`}
-                                            className="flex items-center bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 p-2 pl-0 rounded-r-full shadow-2xl transition-all duration-500 hover:bg-white dark:hover:bg-[#1a1425] hover:pl-3 group-hover/stl:shadow-white/5"
-                                        >
-                                            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/30 shadow-inner">
-                                                <img 
-                                                    src={(() => {
-                                                        try {
-                                                            const relImages = JSON.parse(relatedProduct.images || '[]');
-                                                            const firstImg = relImages[0];
-                                                            return firstImg.startsWith('http') ? firstImg : `${API_BASE_URL}${firstImg}`;
-                                                        } catch(e) { return ''; }
-                                                    })()} 
-                                                    alt={relatedProduct.name}
-                                                    className="w-full h-full object-cover group-hover/stl:scale-110 transition-transform duration-700"
-                                                />
-                                            </div>
-                                            <div className="max-w-0 overflow-hidden group-hover/stl:max-w-xs transition-all duration-500 ease-in-out">
-                                                <div className="px-4 whitespace-nowrap flex flex-col">
-                                                    <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-0.5">Shop the Look</span>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[11px] font-bold uppercase tracking-tight text-black dark:text-white">{relatedProduct.name}</span>
-                                                        <ChevronRight size={10} className="text-black dark:text-white" />
+                    {/* Images Column - Editorial Grid Layout */}
+                    <div className="w-full lg:w-1/2 grid grid-cols-12 gap-4 auto-rows-min">
+                        {displayImages.length > 0 ? displayImages.map((img, idx) => {
+                            // Pattern: 100%, 50/50, 75/25, 25/75
+                            const pattern = idx % 7;
+                            let span = "col-span-12";
+                            if (pattern === 1 || pattern === 2) span = "col-span-6";
+                            else if (pattern === 3) span = "col-span-9";
+                            else if (pattern === 4) span = "col-span-3";
+                            else if (pattern === 5) span = "col-span-3";
+                            else if (pattern === 6) span = "col-span-9";
+
+                            const isLast = idx === displayImages.length - 1;
+                            if (isLast && (pattern === 1 || pattern === 3 || pattern === 5)) {
+                                span = "col-span-12";
+                            }
+
+                            return (
+                                <motion.div 
+                                    key={img} 
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.8, ease: "easeOut" }}
+                                    className={`${span} bg-gray-100 dark:bg-gray-800 relative overflow-hidden group`}
+                                >
+                                    <motion.img
+                                        initial={{ scale: 1.1 }}
+                                        whileInView={{ scale: 1 }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 1.5, ease: "easeOut" }}
+                                        src={img}
+                                        alt={`${product.name} view ${idx + 1}`}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
+                                    {idx === 0 && relatedProduct && (
+                                        <div className="absolute bottom-12 left-0 z-20 group/stl">
+                                            <Link 
+                                                to={`/product/${relatedProduct.id}`}
+                                                className="flex items-center bg-white/20 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 p-2 pl-0 rounded-r-full shadow-2xl transition-all duration-500 hover:bg-white dark:hover:bg-[#1a1425] hover:pl-3 group-hover/stl:shadow-white/5"
+                                            >
+                                                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/30 shadow-inner">
+                                                    <img 
+                                                        src={(() => {
+                                                            try {
+                                                                const relImages = JSON.parse(relatedProduct.images || '[]');
+                                                                const firstImg = relImages[0];
+                                                                return firstImg.startsWith('http') ? firstImg : `${API_BASE_URL}${firstImg}`;
+                                                            } catch(e) { return ''; }
+                                                        })()} 
+                                                        alt={relatedProduct.name}
+                                                        className="w-full h-full object-cover group-hover/stl:scale-110 transition-transform duration-700"
+                                                    />
+                                                </div>
+                                                <div className="max-w-0 overflow-hidden group-hover/stl:max-w-xs transition-all duration-500 ease-in-out">
+                                                    <div className="px-4 whitespace-nowrap flex flex-col">
+                                                        <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-0.5">Shop the Look</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-[11px] font-bold uppercase tracking-tight text-black dark:text-white">{relatedProduct.name}</span>
+                                                            <ChevronRight size={10} className="text-black dark:text-white" />
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </Link>
-                                    </div>
-                                )}
-                            </motion.div>
-                        )) : (
-                            <div className="aspect-[3/4] bg-gray-100 flex items-center justify-center">
-                                Sin imagen
+                                            </Link>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            );
+                        }) : (
+                            <div className="col-span-12 aspect-[3/4] bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 font-bold uppercase tracking-widest text-xs">
+                                Sin imágenes disponibles
                             </div>
                         )}
                     </div>
@@ -254,9 +272,16 @@ const ProductDetail = () => {
                                             S/ {product.price.toFixed(2)}
                                         </p>
                                         <div className="flex flex-col">
-                                            <span className="bg-purple-600 text-white text-[10px] font-bold uppercase py-1 px-2 rounded-sm ml-2">
-                                                Oferta
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="bg-purple-600 text-white text-[10px] font-bold uppercase py-1 px-2 rounded-sm ml-2">
+                                                    Oferta
+                                                </span>
+                                                {product.price > 0 && product.offer_price > 0 && (
+                                                    <span className="text-purple-600 font-bold text-xs uppercase tracking-tight">
+                                                        {Math.round(((product.price - product.offer_price) / product.price) * 100)}% DCTO.
+                                                    </span>
+                                                )}
+                                            </div>
                                             {product.offer_min_qty > 1 && (
                                                 <span className="text-[10px] text-purple-500 font-bold uppercase mt-1 ml-2">
                                                     * Llevando {product.offer_min_qty} o más
