@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Database and Cache
+backend/database.db
+backend/__pycache__
+__pycache__/
+.env
+.env.local
+static/uploads/*
+!static/uploads/.gitkeep
