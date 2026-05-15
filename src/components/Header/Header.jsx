@@ -79,8 +79,7 @@ const Header = () => {
         };
     }, [isMobileMenuOpen]);
 
-    const isHomePage = location.pathname === '/';
-    const isSolidHeader = scrolled || !isHomePage;
+    const isSolidHeader = true; // Always solid as requested
 
     return (
         <header className={`fixed w-full z-50 transition-all duration-300 ${isSolidHeader ? 'bg-white dark:bg-black shadow-md dark:shadow-gray-800/30' : 'bg-transparent'}`}>
@@ -94,8 +93,8 @@ const Header = () => {
             {/* Navbar */}
             <nav className={`container mx-auto px-4 flex justify-between items-center relative transition-all duration-500 ${scrolled ? 'py-2' : 'py-3'}`}>
 
-                {/* Left: Hamburger Menu (Mobile Only) */}
-                <div className={`md:hidden w-1/3 flex items-center z-50 ${isSolidHeader ? 'text-black dark:text-gray-200' : 'text-white'}`}>
+                {/* Left: Hamburger Menu (Now on all screens) */}
+                <div className={`w-1/3 flex items-center z-50 ${isSolidHeader ? 'text-black dark:text-gray-200' : 'text-white'}`}>
                     <button
                         onClick={() => setIsMobileMenuOpen(true)}
                         className="p-1 hover:text-purple-600 transition-colors"
@@ -104,70 +103,34 @@ const Header = () => {
                     </button>
                 </div>
 
-                {/* Left/Center: Logo */}
-                <div className="w-1/3 flex justify-center md:w-auto md:justify-start">
+                {/* Center: Logo (Balanced for perfect centering) */}
+                <div className="w-1/3 flex justify-center">
                     <Link to="/" className="flex items-center group relative z-50">
-                        <div className={`relative flex items-center justify-center rounded-full bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm shadow-sm border border-white/20 dark:border-gray-700/50 group-hover:bg-white/80 dark:group-hover:bg-gray-800/80 transition-all duration-500 ${scrolled ? 'w-18 h-18 md:w-28 md:h-28' : 'w-20 h-20 md:w-32 md:h-32'}`}>
-                            {/* Dots Circle SVG */}
-                            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full animate-spin-slow opacity-80 group-hover:opacity-100">
-                                {/* Generate dots around circle with Pink-Purple Spectrum */}
-                                {[...Array(20)].map((_, i) => {
-                                    const angleRad = (i * 360 / 20 * Math.PI) / 180;
-                                    const radius = 42;
-                                    const x = 50 + radius * Math.cos(angleRad);
-                                    const y = 50 + radius * Math.sin(angleRad);
-                                    const hue = 290 + 40 * Math.sin((i / 20) * 2 * Math.PI);
-                                    return (
-                                        <circle key={i} cx={x} cy={y} r="2.7" fill={`hsl(${hue}, 90%, 70%)`} />
-                                    );
-                                })}
-                            </svg>
+                        <div className={`flex flex-col items-center justify-center transition-all duration-700 ${scrolled ? 'scale-90' : 'scale-100'}`}>
+                            {/* Main Name with Breathing Effect */}
+                            <div className="relative">
+                                <span className={`block text-3xl md:text-4xl font-serif font-black tracking-tighter leading-none transition-all duration-500 group-hover:tracking-[0.05em] ${isSolidHeader ? 'text-black dark:text-white' : 'text-white'}`}>
+                                    GEGE
+                                </span>
+                                {/* Floating Accent Dot */}
+                                <div className="absolute -top-1 -right-2 w-1 h-1 rounded-full bg-accent-gradient opacity-0 group-hover:opacity-100 transition-all duration-500 scale-0 group-hover:scale-100 shadow-[0_0_8px_#F472B6]"></div>
+                            </div>
 
-                            {/* Text Center */}
-                            <div className={`text-center z-10 flex flex-col items-center justify-center mt-0.5 transition-all duration-500 ${scrolled ? 'scale-[0.7] md:scale-95' : 'scale-[0.75] md:scale-110'}`}>
-                                <span className="block text-[1.53rem] font-serif font-bold tracking-tight leading-none text-black dark:text-white transition-colors">GEGE</span>
-                                <span className="block text-[0.4rem] font-sans font-bold tracking-[0.2em] text-black dark:text-white transition-colors">THE BRAND</span>
+                            {/* Stylized Subtitle with Expanding Lines */}
+                            <div className="flex items-center gap-3 mt-1.5 overflow-hidden">
+                                <div className={`h-[0.5px] w-3 transition-all duration-700 group-hover:w-8 ${isSolidHeader ? 'bg-black/20 dark:bg-white/20' : 'bg-white/30'} group-hover:bg-purple-400`}></div>
+                                <span className={`block text-[0.4rem] md:text-[0.5rem] font-sans font-black tracking-[0.5em] transition-all duration-500 uppercase ${isSolidHeader ? 'text-gray-500 dark:text-gray-400' : 'text-white/80'} group-hover:text-purple-500 dark:group-hover:text-purple-400`}>
+                                    The Brand
+                                </span>
+                                <div className={`h-[0.5px] w-3 transition-all duration-700 group-hover:w-8 ${isSolidHeader ? 'bg-black/20 dark:bg-white/20' : 'bg-white/30'} group-hover:bg-purple-400`}></div>
                             </div>
                         </div>
                     </Link>
                 </div>
 
-                {/* Center: Navigation Links (Desktop) */}
-                <div className="hidden md:flex items-center space-x-8">
-                    {[
-                        { name: 'INICIO', target: null },
-                        { name: 'NOSOTROS', target: 'nosotros' },
-                        { name: 'TIENDA', target: 'shop' },
-                        { name: 'EDITORIAL', target: 'editorial' },
-                    ].map((item) => (
-                        <button
-                            key={item.name}
-                            onClick={() => {
-                                if (location.pathname !== '/' || item.target) {
-                                    navigate(item.target ? `/#${item.target}` : '/');
-                                } else {
-                                    // Already on '/' with no target (Inicio)
-                                    if (window.lenis) {
-                                        window.lenis.scrollTo(0, { duration: 1.2 });
-                                    } else {
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                    }
-                                }
-                            }}
-                            className={`text-sm font-bold tracking-widest hover:text-purple-600 dark:hover:text-purple-400 transition-colors relative group ${isSolidHeader ? 'text-black dark:text-gray-200' : 'text-white'}`}
-                        >
-                            {item.name}
-                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-600 transition-all duration-300 group-hover:w-full"></span>
-                        </button>
-                    ))}
-                </div>
 
-                {/* Right: Icons */}
-                <div className={`w-1/3 flex items-center justify-end space-x-4 md:w-auto md:space-x-6 ${isSolidHeader ? 'text-black dark:text-gray-200' : 'text-white'}`}>
-                    <Search
-                        className="hidden md:block w-[1.32rem] h-[1.32rem] hover:text-purple-600 dark:hover:text-purple-400 cursor-pointer transition-colors"
-                        onClick={() => setIsSearchOpen(true)}
-                    />
+                {/* Right: Icons (Balanced for perfect centering) */}
+                <div className={`w-1/3 flex items-center justify-end space-x-4 md:space-x-6 ${isSolidHeader ? 'text-black dark:text-gray-200' : 'text-white'}`}>
                     <button
                         type="button"
                         onClick={(e) => {
@@ -175,7 +138,7 @@ const Header = () => {
                             e.stopPropagation();
                             toggleTheme();
                         }}
-                        className="hidden md:block p-1 hover:text-purple-600 dark:hover:text-purple-400 transition-colors focus:outline-none"
+                        className="p-1 hover:text-purple-600 dark:hover:text-purple-400 transition-colors focus:outline-none"
                         title={isDark ? 'Modo claro' : 'Modo oscuro'}
                         style={{ zIndex: 60 }} // Extra z-index to be safe
                     >
@@ -200,19 +163,19 @@ const Header = () => {
                 </div>
             </nav>
 
-            {/* Mobile Sidebar Overlay */}
+            {/* Sidebar Overlay */}
             {
                 isMobileMenuOpen && (
                     <div
-                        className="fixed inset-0 bg-black/50 z-[100] transition-opacity md:hidden"
+                        className="fixed inset-0 bg-black/50 z-[100] transition-opacity"
                         onClick={() => setIsMobileMenuOpen(false)}
                     />
                 )
             }
 
-            {/* Mobile Sidebar */}
+            {/* Sidebar */}
             <div
-                className={`fixed top-0 left-0 h-screen w-[85%] max-w-sm bg-white dark:bg-[#07020f] z-[110] transform transition-transform duration-300 ease-in-out flex flex-col md:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`fixed top-0 left-0 h-screen w-[85%] max-w-sm bg-white dark:bg-[#07020f] z-[110] transform transition-transform duration-300 ease-in-out flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
                 {/* Sidebar Header */}
@@ -252,33 +215,27 @@ const Header = () => {
                                     INICIO
                                     <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                                 </button>
-                                {/* Dark mode toggle - mobile */}
                                 <button
                                     className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex justify-between items-center w-full uppercase"
-                                    onClick={toggleTheme}
+                                    onClick={() => {
+                                        setIsMobileMenuOpen(false);
+                                        const el = document.getElementById('shop');
+                                        if (location.pathname === '/' && el) {
+                                            if (window.lenis) window.lenis.scrollTo(el, { offset: -100, duration: 1.5 });
+                                            else window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
+                                        } else {
+                                            navigate('/#shop');
+                                        }
+                                    }}
                                 >
-                                    {isDark ? 'MODO CLARO' : 'MODO OSCURO'}
-                                    {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-gray-400" />}
+                                    TIENDA
+                                    <ShoppingBag className="w-4 h-4 text-gray-400" />
                                 </button>
                                 <button
                                     className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex justify-between items-center w-full uppercase"
                                     onClick={() => {
                                         setIsMobileMenuOpen(false);
-                                        if (location.pathname !== '/') {
-                                            navigate('/#nosotros');
-                                        } else {
-                                            const el = document.getElementById('nosotros');
-                                            if (el) {
-                                                if (window.lenis) {
-                                                    window.lenis.scrollTo(el, { offset: -100, duration: 1.5 });
-                                                } else {
-                                                    const headerOffset = 100;
-                                                    const elementPosition = el.getBoundingClientRect().top;
-                                                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                                                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                                                }
-                                            }
-                                        }
+                                        navigate('/nosotros');
                                     }}
                                 >
                                     NOSOTROS
@@ -292,20 +249,14 @@ const Header = () => {
                                     className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex justify-between items-center w-full uppercase"
                                     onClick={() => {
                                         setIsMobileMenuOpen(false);
-                                        if (location.pathname !== '/') {
-                                            navigate('/#editorial');
-                                        } else {
+                                        if (location.pathname === '/' && location.hash === '#editorial') {
                                             const el = document.getElementById('editorial');
                                             if (el) {
-                                                if (window.lenis) {
-                                                    window.lenis.scrollTo(el, { offset: -100, duration: 1.5 });
-                                                } else {
-                                                    const headerOffset = 100;
-                                                    const elementPosition = el.getBoundingClientRect().top;
-                                                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                                                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                                                }
+                                                if (window.lenis) window.lenis.scrollTo(el, { offset: -100, duration: 1.5 });
+                                                else window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
                                             }
+                                        } else {
+                                            navigate('/#editorial');
                                         }
                                     }}
                                 >
