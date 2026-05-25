@@ -233,6 +233,16 @@ const Header = () => {
                                     <ShoppingBag className="w-4 h-4 text-gray-400" />
                                 </button>
                                 <button
+                                    className="hover:text-red-500 transition-colors flex justify-between items-center w-full uppercase text-red-600 font-black tracking-widest"
+                                    onClick={() => {
+                                        setIsMobileMenuOpen(false);
+                                        navigate('/sale');
+                                    }}
+                                >
+                                    SALE
+                                    <svg className="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                </button>
+                                <button
                                     className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex justify-between items-center w-full uppercase"
                                     onClick={() => {
                                         setIsMobileMenuOpen(false);

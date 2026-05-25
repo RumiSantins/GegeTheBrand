@@ -18,6 +18,7 @@ import Wishlist from './pages/Wishlist';
 import SharedWishlist from './pages/SharedWishlist';
 import Links from './pages/Links';
 import Nosotros from './pages/Nosotros';
+import Sale from './pages/Sale';
 
 const AppContent = () => {
   const location = useLocation();
@@ -113,6 +114,7 @@ const AppContent = () => {
           <Route path="/wishlist/shared" element={<SharedWishlist />} />
           <Route path="/links" element={<Links />} />
           <Route path="/nosotros" element={<Nosotros />} />
+          <Route path="/sale" element={<Sale />} />
         </Routes>
       </main>
       {!isIsolatedRoute && <Footer />}
