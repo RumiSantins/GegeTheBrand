@@ -120,7 +120,7 @@ const Header = () => {
                             {/* Stylized Subtitle with Expanding Lines */}
                             <div className="flex items-center gap-3 mt-1.5 overflow-hidden">
                                 <div className={`h-[0.5px] w-3 transition-all duration-700 group-hover:w-8 ${isSolidHeader ? 'bg-black/20 dark:bg-white/20' : 'bg-white/30'} group-hover:bg-purple-400`}></div>
-                                <span className={`block text-[0.4rem] md:text-[0.5rem] font-sans font-black tracking-[0.5em] transition-all duration-500 uppercase ${isSolidHeader ? 'text-gray-500 dark:text-gray-400' : 'text-white/80'} group-hover:text-purple-500 dark:group-hover:text-purple-400`}>
+                                <span className={`block pl-[0.5em] text-[0.4rem] md:text-[0.5rem] font-sans font-black tracking-[0.5em] transition-all duration-500 uppercase ${isSolidHeader ? 'text-gray-500 dark:text-gray-400' : 'text-white/80'} group-hover:text-purple-500 dark:group-hover:text-purple-400`}>
                                     The Brand
                                 </span>
                                 <div className={`h-[0.5px] w-3 transition-all duration-700 group-hover:w-8 ${isSolidHeader ? 'bg-black/20 dark:bg-white/20' : 'bg-white/30'} group-hover:bg-purple-400`}></div>
