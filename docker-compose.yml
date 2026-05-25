@@ -6,8 +6,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     # Quitar puertos públicos, Nginx se encargará del ruteo interno
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
     volumes:
       - ./backend:/app
       - ./backend/static:/app/static
