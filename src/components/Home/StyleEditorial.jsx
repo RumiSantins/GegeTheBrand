@@ -43,10 +43,10 @@ const StyleEditorial = () => {
         "https://images.unsplash.com/photo-1518049362265-d5b2a6467637?q=80&w=1964&auto=format&fit=crop", // Minimalist architecture/light
     ];
 
-    if (!settings) return <section id="editorial" className="py-40 bg-white dark:bg-black min-h-[60vh] flex items-center justify-center text-gray-300 dark:text-gray-800 uppercase tracking-[0.3em] text-[10px] font-bold">Cargando Editorial...</section>;
+    if (!settings) return <section id="editorial" className="py-20 md:py-32 lg:py-40 bg-white dark:bg-black min-h-[60vh] flex items-center justify-center text-gray-300 dark:text-gray-800 uppercase tracking-[0.3em] text-[10px] font-bold">Cargando Editorial...</section>;
 
     return (
-        <section id="editorial" className="py-40 bg-white dark:bg-black relative overflow-hidden text-black dark:text-white">
+        <section id="editorial" className="py-20 md:py-32 lg:py-40 bg-white dark:bg-black relative overflow-hidden text-black dark:text-white">
             {/* Background Decorative Text */}
             <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 select-none opacity-[0.02] pointer-events-none">
                 <span className="text-[25rem] font-serif font-bold italic leading-none whitespace-nowrap overflow-visible">
