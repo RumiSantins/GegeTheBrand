@@ -1,4 +1,4 @@
-# 🌿 Gege The Brand - E-commerce Platform
+#  Gege The Brand - E-commerce Platform
 
 Bienvenido al repositorio central de **Gege The Brand**, una tienda en línea premium diseñada para ofrecer una experiencia de usuario fluida, elegante y moderna.
 
@@ -6,16 +6,16 @@ Este proyecto integra un frontend interactivo de alto rendimiento con un backend
 
 ---
 
-## 📢 Últimas Actualizaciones (Marzo 2026)
+##  Últimas Actualizaciones (Marzo 2026)
 
-- **✨ Rediseño Responsivo del Admin:** El panel de administración ahora es 100% adaptable. Se han implementado pestañas con scroll horizontal, tablas colapsables y controles optimizados para dispositivos móviles y tablets.
-- **🔗 Optimización de Página de Enlaces (`/links`):** Correcciones estéticas monumentales. Se centró el branding, se añadieron efectos de cristalería (backdrop-blur) y se actualizaron los accesos directos a redes sociales (Instagram, WhatsApp, TikTok).
-- **🔒 Seguridad & CORS:** Se ajustó la configuración del backend para permitir la comunicación segura entre el frontend y la API utilizando la IP pública del servidor en GCP.
-- **📦 Automatización de Inventario:** Inclusión de nuevos scripts en Python para la carga masiva de productos y obtención de recursos visuales reales.
+- ** Rediseño Responsivo del Admin:** El panel de administración ahora es 100% adaptable. Se han implementado pestañas con scroll horizontal, tablas colapsables y controles optimizados para dispositivos móviles y tablets.
+- ** Optimización de Página de Enlaces (`/links`):** Correcciones estéticas monumentales. Se centró el branding, se añadieron efectos de cristalería (backdrop-blur) y se actualizaron los accesos directos a redes sociales (Instagram, WhatsApp, TikTok).
+- ** Seguridad & CORS:** Se ajustó la configuración del backend para permitir la comunicación segura entre el frontend y la API utilizando la IP pública del servidor en GCP.
+- ** Automatización de Inventario:** Inclusión de nuevos scripts en Python para la carga masiva de productos y obtención de recursos visuales reales.
 
 ---
 
-## 🚀 Características Principales
+##  Características Principales
 
 - **Tienda Dinámica:** Catálogo de productos con variantes, imágenes y filtros.
 - **Admin Dashboard Responsivo:** Panel de administración rediseñado para una experiencia fluida tanto en escritorio como en dispositivos móviles y tablets:
@@ -29,7 +29,7 @@ Este proyecto integra un frontend interactivo de alto rendimiento con un backend
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Frontend
 - **Framework:** React 19 + Vite
@@ -50,7 +50,7 @@ Este proyecto integra un frontend interactivo de alto rendimiento con un backend
 
 ---
 
-## ⚙️ Cómo Levantar el Proyecto
+##  Cómo Levantar el Proyecto
 
 La forma más sencilla de ejecutar todo el ecosistema (Frontend + Backend) es utilizando Docker Compose.
 
@@ -71,7 +71,7 @@ La forma más sencilla de ejecutar todo el ecosistema (Frontend + Backend) es ut
    - **Backend API:** [http://localhost:8080](http://localhost:8080)
    - **Documentación API (Swagger):** [http://localhost:8080/docs](http://localhost:8080/docs)
 
-### 🔐 Credenciales de Acceso (Desarrollo)
+###  Credenciales de Acceso (Desarrollo)
 
 Para acceder al **Admin Dashboard** en el entorno de desarrollo local, utiliza las siguientes credenciales configuradas por defecto:
 
@@ -110,7 +110,7 @@ npm run dev
 
 ---
 
-## 📂 Estructura del Proyecto
+##  Estructura del Proyecto
 
 - `/src`: Código fuente del frontend (Componentes, Páginas, Hooks).
 - `/backend`: Lógica del servidor, modelos de base de datos y scripts de utilidad.
@@ -119,7 +119,7 @@ npm run dev
 
 ---
 
-## 🛠️ Scripts de Utilidad (Backend)
+##  Scripts de Utilidad (Backend)
 
 Dentro de la carpeta `backend/` se incluyen scripts para automatizar tareas comunes:
 
@@ -132,11 +132,11 @@ Dentro de la carpeta `backend/` se incluyen scripts para automatizar tareas comu
 
 ---
 
-## 📖 Documentación Específica
+##  Documentación Específica
 
 Para guías detalladas sobre características particulares, consulta los siguientes archivos:
 
-- [🔗 Guía de Página de Enlaces (Links Page)](file:///c:/apps/gegethebrand/DOCS_LINKS.md): Instrucciones sobre cómo configurar y personalizar la sección de redes sociales.
+- [ Guía de Página de Enlaces (Links Page)](file:///c:/apps/gegethebrand/DOCS_LINKS.md): Instrucciones sobre cómo configurar y personalizar la sección de redes sociales.
 
 ---
 *Gege The Brand - Estilo & Esencia.*
