@@ -284,11 +284,13 @@ const AdminDashboard = () => {
                                             return (
                                                 <tr key={product.id} className="hover:bg-gray-50 transition">
                                                     <td className="px-6 py-4">
-                                                        <div className="flex gap-2">
-                                                            {images.length > 0 ? images.slice(0, 3).map((imgUrl, i) => (
-                                                                <img key={i} src={resolveImageUrl(imgUrl)} alt={`Img ${i}`} className="w-12 h-12 object-cover border" title={`Imagen ${i + 1}`} />
-                                                            )) : <span className="text-gray-400 text-xs">Sin imagen</span>}
-                                                            {images.length > 3 && <div className="w-12 h-12 flex items-center justify-center bg-gray-100 text-xs font-bold border">+{images.length - 3}</div>}
+                                                        <div className="flex gap-2 items-center">
+                                                            {images.length > 0 ? (
+                                                                <>
+                                                                    <img src={resolveImageUrl(images[0])} alt="Principal" className="w-12 h-12 object-cover border rounded-sm shadow-sm" title="Imagen Principal" />
+                                                                    {images.length > 1 && <span className="text-xs font-bold text-gray-400">+{images.length - 1}</span>}
+                                                                </>
+                                                            ) : <span className="text-gray-400 text-xs">Sin imagen</span>}
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 font-medium">{product.name}</td>
