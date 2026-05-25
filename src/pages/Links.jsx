@@ -65,10 +65,10 @@ const Links = () => {
             rel="noopener noreferrer"
             className={`flex items-center justify-between w-full py-2.5 px-4 md:p-4 rounded-full transition-all duration-500 shadow-sm hover:shadow-xl border hover:scale-[1.02] active:scale-95 group ${link.highlight
               ? 'bg-black dark:bg-white text-white dark:text-black border-transparent font-bold ring-4 ring-black/5 dark:ring-white/5'
-              : 'bg-white/90 dark:bg-gradient-to-r dark:from-fuchsia-600/30 dark:to-pink-500/30 backdrop-blur-md text-black dark:text-gray-200 border-white/20 dark:border-pink-500/50'
+              : 'bg-white/90 dark:bg-gradient-to-r dark:from-fuchsia-600/30 dark:to-pink-500/30 backdrop-blur-md text-black border-white/20 dark:border-pink-500/50'
               }`}
           >
-            <div className={`w-6 md:w-10 flex justify-center transition-transform duration-500 group-hover:scale-110 ${link.highlight ? 'text-white dark:text-black' : 'text-black dark:text-purple-400'}`}>
+            <div className={`w-6 md:w-10 flex justify-center transition-transform duration-500 group-hover:scale-110 ${link.highlight ? 'text-white dark:text-black' : 'text-black'}`}>
               <div className="scale-75 md:scale-100">
                 {link.icon}
               </div>
