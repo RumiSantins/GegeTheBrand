@@ -60,6 +60,14 @@ const ProductDetail = () => {
         fetchRelatedProduct();
     }, [product]);
 
+    const [failedImages, setFailedImages] = useState([]);
+
+    useEffect(() => {
+        if (product) {
+            setFailedImages([]);
+        }
+    }, [product, selectedColor]);
+
     useEffect(() => {
         if (window.lenis) {
             window.lenis.scrollTo(0, { immediate: true });
@@ -108,6 +116,10 @@ const ProductDetail = () => {
         }
         displayImages.unshift(variantImgUrl);
     }
+    
+    // Filter out images that have failed to load
+    displayImages = displayImages.filter(img => !failedImages.includes(img));
+
     const sizesArray = [...new Set(variants.map(v => v.size))];
     const colorsArray = [...new Set(variants.map(v => v.color))];
 
@@ -215,6 +227,7 @@ const ProductDetail = () => {
                                         src={img}
                                         alt={`${product.name} view ${idx + 1}`}
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                        onError={() => setFailedImages(prev => prev.includes(img) ? prev : [...prev, img])}
                                     />
                                     {idx === 0 && relatedProduct && (
                                         <div className="absolute bottom-12 left-0 z-20 group/stl">
@@ -255,6 +268,7 @@ const ProductDetail = () => {
                             </div>
                         )}
                     </div>
+
 
                     {/* Details Column */}
                     <div className="w-full lg:w-1/2 flex flex-col">
@@ -314,10 +328,20 @@ const ProductDetail = () => {
                                             const hasStockForColor = variants.some(v => v.color === color && v.stock > 0);
                                             const renderColorHex = colorVariant?.color_hex || color; // fallback
 
+                                            const handleColorSelect = () => {
+                                                setSelectedColor(color);
+                                                // Scroll to top so they can see the updated variant image on any device
+                                                if (window.lenis) {
+                                                    window.lenis.scrollTo(0, { duration: 1.2 });
+                                                } else {
+                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                }
+                                            };
+
                                             return (
                                                 <button
                                                     key={color}
-                                                    onClick={() => setSelectedColor(color)}
+                                                    onClick={handleColorSelect}
                                                     disabled={!hasStockForColor}
                                                     className={`w-10 h-10 rounded-full border-2 transition-all ${!hasStockForColor
                                                         ? 'border-gray-200 dark:border-gray-800 opacity-30 cursor-not-allowed'

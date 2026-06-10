@@ -9,6 +9,7 @@ const OrdersTab = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const [showOrderModal, setShowOrderModal] = useState(false);
     const [editingOrder, setEditingOrder] = useState(null);
     const [editFormData, setEditFormData] = useState({
         customer_info: '',
@@ -101,8 +102,27 @@ const OrdersTab = () => {
     };
 
     const formatDate = (isoString) => {
-        const date = new Date(isoString);
+        if (!isoString) return '';
+        let safeString = isoString;
+        if (!safeString.endsWith('Z') && !safeString.includes('+')) {
+            safeString = safeString.replace(' ', 'T');
+            if (!safeString.endsWith('Z')) {
+                safeString += 'Z';
+            }
+        }
+        const date = new Date(safeString);
         return date.toLocaleDateString('es-PE') + ' ' + date.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const handleCreateClick = () => {
+        setEditingOrder(null);
+        setEditFormData({
+            customer_info: '',
+            items: [],
+            amount_paid: 0,
+            payment_method: 'Efectivo'
+        });
+        setShowOrderModal(true);
     };
 
     const handleEditClick = (order) => {
@@ -113,11 +133,13 @@ const OrdersTab = () => {
             amount_paid: order.amount_paid || 0,
             payment_method: order.payment_method || 'Efectivo'
         });
+        setShowOrderModal(true);
     };
 
     const handleCancelEdit = () => {
         setEditingOrder(null);
         setEditFormData({ customer_info: '', items: [], amount_paid: 0, payment_method: 'Efectivo' });
+        setShowOrderModal(false);
     };
 
     const handleItemQuantityChange = (index, newQuantity) => {
@@ -182,32 +204,64 @@ const OrdersTab = () => {
         });
     };
 
-    const handleSaveEdit = async () => {
+    const handleSaveOrder = async () => {
         if (editFormData.items.length === 0) {
-            alert("No puedes dejar el pedido sin productos. Si quieres cancelarlo, cambia su estado a Cancelada.");
+            alert("No puedes dejar el pedido sin productos.");
             return;
         }
 
-        try {
-            const res = await fetch(`${API_BASE_URL}/admin/orders/${editingOrder.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...getAuthHeaders()
-                },
-                body: JSON.stringify(editFormData)
-            });
+        const totalAmount = editFormData.items.reduce((total, item) => total + (item.price_at_time * item.quantity), 0);
+        const payload = {
+            ...editFormData,
+            total_amount: totalAmount
+        };
 
-            if (res.ok) {
-                alert("Pedido actualizado exitosamente.");
-                setEditingOrder(null);
-                fetchOrders();
-            } else {
-                alert("Error al guardar la edición");
+        if (editingOrder) {
+            // Update existing order
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/orders/${editingOrder.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify(editFormData) // PUT uses editFormData, total_amount handled by backend or payload
+                });
+
+                if (res.ok) {
+                    alert("Pedido actualizado exitosamente.");
+                    setShowOrderModal(false);
+                    setEditingOrder(null);
+                    fetchOrders();
+                } else {
+                    alert("Error al guardar la edición");
+                }
+            } catch (err) {
+                console.error("Error updating order:", err);
+                alert("Error de conexión");
             }
-        } catch (err) {
-            console.error("Error updating order:", err);
-            alert("Error de conexión");
+        } else {
+            // Create new order
+            try {
+                const res = await fetch(`${API_BASE_URL}/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    alert("Pedido creado exitosamente.");
+                    setShowOrderModal(false);
+                    fetchOrders();
+                } else {
+                    alert("Error al crear el pedido");
+                }
+            } catch (err) {
+                console.error("Error creating order:", err);
+                alert("Error de conexión");
+            }
         }
     };
 
@@ -216,7 +270,12 @@ const OrdersTab = () => {
     return (
         <div className="bg-white shadow rounded-lg overflow-hidden border">
             <div className="p-4 border-b bg-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h2 className="font-header font-bold uppercase min-w-max">Gestión de Pedidos</h2>
+                <div className="flex items-center gap-4">
+                    <h2 className="font-header font-bold uppercase min-w-max">Gestión de Pedidos</h2>
+                    <button onClick={handleCreateClick} className="bg-black text-white px-3 py-1.5 rounded text-xs font-bold uppercase flex items-center gap-2 hover:bg-gray-800 transition">
+                        <Plus size={14} /> Nuevo
+                    </button>
+                </div>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <input 
                         type="text" 
@@ -316,12 +375,14 @@ const OrdersTab = () => {
                 </div>
             </div>
 
-            {/* Modal de Edición */}
-            {editingOrder && (
+            {/* Modal de Edición / Creación */}
+            {showOrderModal && (
                 <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
                     <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh]">
                         <div className="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-lg">
-                            <h3 className="font-bold text-lg">Editar Pedido {editingOrder.order_number}</h3>
+                            <h3 className="font-bold text-lg">
+                                {editingOrder ? `Editar Pedido ${editingOrder.order_number}` : 'Nuevo Pedido'}
+                            </h3>
                             <button onClick={handleCancelEdit} className="text-gray-500 hover:text-black">
                                 <X size={20} />
                             </button>
@@ -477,7 +538,7 @@ const OrdersTab = () => {
                                 Cancelar
                             </button>
                             <button
-                                onClick={handleSaveEdit}
+                                onClick={handleSaveOrder}
                                 disabled={editFormData.items.some(item => {
                                     const p = products.find(prod => prod.id === item.product_id);
                                     const hasVariants = p && p.variants && p.variants.length > 0;
@@ -485,7 +546,7 @@ const OrdersTab = () => {
                                 })}
                                 className="px-4 py-2 bg-black text-white font-bold uppercase text-xs hover:bg-gray-800 transition flex items-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
                             >
-                                <Save size={14} /> Guardar Cambios
+                                <Save size={14} /> {editingOrder ? 'Guardar Cambios' : 'Crear Pedido'}
                             </button>
                         </div>
                     </div>

@@ -17,7 +17,13 @@ const AdminDashboard = () => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [heroSlides, setHeroSlides] = useState([]);
-    const [activeTab, setActiveTab] = useState('products');
+    const [activeTab, setActiveTab] = useState(() => {
+        return localStorage.getItem('adminActiveTab') || 'products';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('adminActiveTab', activeTab);
+    }, [activeTab]);
 
     const [showForm, setShowForm] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);

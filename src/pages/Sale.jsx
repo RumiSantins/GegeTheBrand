@@ -29,50 +29,73 @@ const Sale = () => {
         fetchProducts();
     }, []);
 
+    const productsByCategory = products.reduce((acc, product) => {
+        const category = product.category || 'Otros';
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(product);
+        return acc;
+    }, {});
+
     return (
-        <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto min-h-screen">
-            <div className="mb-12 text-center mt-12">
-                <h1 className="text-4xl md:text-5xl font-header font-black uppercase tracking-tighter mb-4 text-red-500">
-                    SALE
-                </h1>
-                <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto text-sm leading-relaxed">
-                    Descubre nuestras piezas exclusivas con descuentos especiales por tiempo limitado.
-                </p>
-            </div>
+        <section className="py-24 max-w-full w-full overflow-hidden min-h-screen">
+            <div className="max-w-7xl mx-auto">
+                <div className="mb-12 text-center mt-12 px-6 md:px-12">
+                    <h1 className="text-4xl md:text-5xl font-header font-black uppercase tracking-tighter mb-4 text-red-500">
+                        SALE
+                    </h1>
+                    <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto text-sm leading-relaxed">
+                        Descubre nuestras piezas exclusivas con descuentos especiales por tiempo limitado.
+                    </p>
+                </div>
 
-            {loading ? (
-                <div className="py-20 text-center text-gray-500 uppercase font-bold tracking-widest text-sm">
-                    Cargando ofertas...
-                </div>
-            ) : products.length === 0 ? (
-                <div className="py-20 text-center text-gray-500 uppercase font-bold tracking-widest text-sm">
-                    Por el momento no hay productos en oferta.
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-                    <AnimatePresence mode="popLayout">
-                        {products.map((product, index) => (
-                            <motion.div
-                                layout
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ duration: 0.4, delay: index * 0.05 }}
-                                key={product.id}
-                                className="h-full"
-                            >
-                                <ProductCard product={product} onQuickShop={() => setQuickShopProduct(product)} />
-                            </motion.div>
+                {loading ? (
+                    <div className="py-20 text-center text-gray-500 uppercase font-bold tracking-widest text-sm">
+                        Cargando ofertas...
+                    </div>
+                ) : products.length === 0 ? (
+                    <div className="py-20 text-center text-gray-500 uppercase font-bold tracking-widest text-sm">
+                        Por el momento no hay productos en oferta.
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-16">
+                        {Object.entries(productsByCategory).map(([category, catProducts]) => (
+                            <div key={category} className="w-full">
+                                <h2 className="text-2xl md:text-3xl font-header font-bold uppercase tracking-tighter mb-8 px-6 md:px-12 text-left">
+                                    {category}
+                                </h2>
+                                <motion.div
+                                    layout
+                                    className="flex overflow-x-auto snap-x snap-mandatory gap-6 px-6 md:px-12 pb-8 no-scrollbar"
+                                >
+                                    <AnimatePresence mode="popLayout">
+                                        {catProducts.map((product) => (
+                                            <motion.div
+                                                layout
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.9 }}
+                                                transition={{ duration: 0.4 }}
+                                                key={product.id}
+                                                className="w-[80vw] sm:w-[45vw] md:w-[320px] lg:w-[280px] xl:w-[300px] flex-shrink-0 snap-center md:snap-start"
+                                            >
+                                                <ProductCard product={product} onQuickShop={() => setQuickShopProduct(product)} />
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                </motion.div>
+                            </div>
                         ))}
-                    </AnimatePresence>
-                </div>
-            )}
+                    </div>
+                )}
 
-            <QuickShopModal
-                isOpen={!!quickShopProduct}
-                onClose={() => setQuickShopProduct(null)}
-                product={quickShopProduct}
-            />
+                <QuickShopModal
+                    isOpen={!!quickShopProduct}
+                    onClose={() => setQuickShopProduct(null)}
+                    product={quickShopProduct}
+                />
+            </div>
         </section>
     );
 };

@@ -47,8 +47,23 @@ const OrderReceipt = () => {
     if (loading) return <div className="p-8 text-center text-gray-500 font-body">Cargando comprobante...</div>;
     if (error || !order) return <div className="p-8 text-center text-red-500 font-body font-bold uppercase">{error || 'Orden no encontrada'}</div>;
 
-    const formatDate = (isoString) => {
-        const date = new Date(isoString);
+    const formatDate = (dateInput) => {
+        if (!dateInput) return '';
+        
+        let date;
+        if (dateInput instanceof Date) {
+            date = dateInput;
+        } else {
+            let safeString = String(dateInput);
+            if (!safeString.endsWith('Z') && !safeString.includes('+')) {
+                safeString = safeString.replace(' ', 'T');
+                if (!safeString.endsWith('Z')) {
+                    safeString += 'Z';
+                }
+            }
+            date = new Date(safeString);
+        }
+        
         return date.toLocaleDateString('es-PE') + ' ' + date.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
     };
 
@@ -139,7 +154,7 @@ const OrderReceipt = () => {
                 <div className="text-center text-xs uppercase text-gray-500 tracking-widest border-t border-gray-200 mt-8 pt-6">
                     <p className="mb-2">¡Gracias por tu compra!</p>
                     <p>Encuentra más en gegethebrand.com</p>
-                    <p className="mt-4 text-[10px]">Copia generada: {formatDate(new Date())}</p>
+                    <p className="mt-4 text-[10px]">Copia generada: {formatDate(order.created_at)}</p>
                 </div>
             </div>
 
