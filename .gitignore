@@ -29,5 +29,5 @@ backend/__pycache__
 __pycache__/
 .env
 .env.local
-static/uploads/*
-!static/uploads/.gitkeep
+backend/static/uploads/*
+!backend/static/uploads/.gitkeep
