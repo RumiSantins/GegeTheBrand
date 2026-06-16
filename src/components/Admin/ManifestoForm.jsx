@@ -233,7 +233,7 @@ const ManifestoForm = () => {
                             </div>
                             <div className="flex-1">
                                 <label className="block text-xs font-bold uppercase mb-1">Imagen Izquierda (Vertical)</label>
-                                <input type="file" accept="image/*" onChange={(e) => handleImageChange(e, 1)} className="hidden" id="manif-img-1" />
+                                <input type="file" accept="image/*, .heic, .heif, .webp" onChange={(e) => handleImageChange(e, 1)} className="hidden" id="manif-img-1" />
                                 <label htmlFor="manif-img-1" className="cursor-pointer inline-flex items-center gap-2 border px-3 py-1 text-xs font-bold uppercase hover:bg-gray-50 transition w-full justify-center">
                                     <Upload size={14} /> Cambiar Foto
                                 </label>
@@ -248,7 +248,7 @@ const ManifestoForm = () => {
                             </div>
                             <div className="flex-1">
                                 <label className="block text-xs font-bold uppercase mb-1">Imagen Derecha (Redonda)</label>
-                                <input type="file" accept="image/*" onChange={(e) => handleImageChange(e, 2)} className="hidden" id="manif-img-2" />
+                                <input type="file" accept="image/*, .heic, .heif, .webp" onChange={(e) => handleImageChange(e, 2)} className="hidden" id="manif-img-2" />
                                 <label htmlFor="manif-img-2" className="cursor-pointer inline-flex items-center gap-2 border px-3 py-1 text-xs font-bold uppercase hover:bg-gray-50 transition w-full justify-center">
                                     <Upload size={14} /> Cambiar Foto
                                 </label>

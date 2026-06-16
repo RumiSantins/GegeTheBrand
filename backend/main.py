@@ -243,15 +243,22 @@ async def upload_image(
     file: UploadFile = File(...), 
     admin: dict = Depends(get_current_admin)
 ):
-    if not file.content_type.startswith("image/"):
+    allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic", ".heif", ".svg", ".bmp", ".tiff"}
+    ext = os.path.splitext(file.filename)[1].lower() if file.filename else ""
+    
+    is_image_type = file.content_type and file.content_type.startswith("image/")
+    is_allowed_ext = ext in allowed_extensions
+    
+    if not (is_image_type or is_allowed_ext):
         raise HTTPException(status_code=400, detail="El archivo debe ser una imagen")
 
-    file_location = f"static/uploads/{file.filename}"
+    safe_filename = f"{uuid.uuid4().hex}{ext}"
+    file_location = f"static/uploads/{safe_filename}"
     
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
     
-    return {"url": f"/static/uploads/{file.filename}"}
+    return {"url": f"/static/uploads/{safe_filename}"}
 
 # --- 5. CATEGORY ENDPOINTS ---
 

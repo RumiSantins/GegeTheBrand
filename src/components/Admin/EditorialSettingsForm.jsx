@@ -212,7 +212,7 @@ const EditorialSettingsForm = () => {
                                         ) : <span className="text-[10px] text-gray-400">Var</span>}
                                     </div>
                                     <div className="flex-1 w-full">
-                                        <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'img1')} className="hidden" id="edit-img-1" />
+                                        <input type="file" accept="image/*, .heic, .heif, .webp" onChange={(e) => handleFileChange(e, 'img1')} className="hidden" id="edit-img-1" />
                                         <label htmlFor="edit-img-1" className="cursor-pointer inline-flex items-center gap-2 border px-2 py-1 text-[10px] font-bold uppercase hover:bg-gray-50 transition w-full justify-center whitespace-nowrap">
                                             <Upload size={12} /> Cambiar Foto
                                         </label>
@@ -228,7 +228,7 @@ const EditorialSettingsForm = () => {
                                         ) : <span className="text-[10px] text-gray-400">Var</span>}
                                     </div>
                                     <div className="flex-1 w-full">
-                                        <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'img2')} className="hidden" id="edit-img-2" />
+                                        <input type="file" accept="image/*, .heic, .heif, .webp" onChange={(e) => handleFileChange(e, 'img2')} className="hidden" id="edit-img-2" />
                                         <label htmlFor="edit-img-2" className="cursor-pointer inline-flex items-center gap-2 border px-2 py-1 text-[10px] font-bold uppercase hover:bg-gray-50 transition w-full justify-center whitespace-nowrap">
                                             <Upload size={12} /> Cambiar Foto
                                         </label>
@@ -251,7 +251,7 @@ const EditorialSettingsForm = () => {
                                         ) : <span className="text-[10px] text-gray-400">Var</span>}
                                     </div>
                                     <div className="flex-1 w-full">
-                                        <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'img3')} className="hidden" id="edit-img-3" />
+                                        <input type="file" accept="image/*, .heic, .heif, .webp" onChange={(e) => handleFileChange(e, 'img3')} className="hidden" id="edit-img-3" />
                                         <label htmlFor="edit-img-3" className="cursor-pointer inline-flex items-center gap-2 border px-3 py-1 text-xs font-bold uppercase hover:bg-gray-50 transition justify-center">
                                             <Upload size={14} /> Cambiar Foto
                                         </label>
@@ -268,7 +268,7 @@ const EditorialSettingsForm = () => {
                                             ) : <span className="text-[10px] text-gray-400">Var</span>}
                                         </div>
                                         <div className="flex-1 w-full">
-                                            <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'img4')} className="hidden" id="edit-img-4" />
+                                            <input type="file" accept="image/*, .heic, .heif, .webp" onChange={(e) => handleFileChange(e, 'img4')} className="hidden" id="edit-img-4" />
                                             <label htmlFor="edit-img-4" className="cursor-pointer inline-flex items-center gap-2 border px-2 py-1 text-[10px] font-bold uppercase hover:bg-gray-50 transition w-full justify-center whitespace-nowrap">
                                                 <Upload size={12} /> Cambiar Foto
                                             </label>
@@ -284,7 +284,7 @@ const EditorialSettingsForm = () => {
                                             ) : <span className="text-[10px] text-gray-400">Var</span>}
                                         </div>
                                         <div className="flex-1 w-full">
-                                            <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'img5')} className="hidden" id="edit-img-5" />
+                                            <input type="file" accept="image/*, .heic, .heif, .webp" onChange={(e) => handleFileChange(e, 'img5')} className="hidden" id="edit-img-5" />
                                             <label htmlFor="edit-img-5" className="cursor-pointer inline-flex items-center gap-2 border px-2 py-1 text-[10px] font-bold uppercase hover:bg-gray-50 transition w-full justify-center whitespace-nowrap">
                                                 <Upload size={12} /> Cambiar Foto
                                             </label>
@@ -324,7 +324,7 @@ const EditorialSettingsForm = () => {
                                     ) : <span className="text-[10px] text-gray-400">Sin foto</span>}
                                 </div>
                                 <div className="flex-1 w-full max-w-sm">
-                                    <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'imgMain')} className="hidden" id="edit-img-main" />
+                                    <input type="file" accept="image/*, .heic, .heif, .webp" onChange={(e) => handleFileChange(e, 'imgMain')} className="hidden" id="edit-img-main" />
                                     <label htmlFor="edit-img-main" className="cursor-pointer inline-flex items-center gap-2 border px-3 py-2 text-xs font-bold uppercase hover:bg-gray-50 transition w-full justify-center">
                                         <Upload size={14} /> Cambiar Foto Principal
                                     </label>

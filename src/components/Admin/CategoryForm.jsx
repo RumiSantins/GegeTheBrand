@@ -118,7 +118,7 @@ const CategoryForm = ({ initialData, onSaved, onCancel }) => {
                         <div className="flex-1">
                             <input
                                 type="file"
-                                accept="image/*"
+                                accept="image/*, .heic, .heif, .webp"
                                 onChange={handleImageChange}
                                 className="hidden"
                                 id="category-image"
