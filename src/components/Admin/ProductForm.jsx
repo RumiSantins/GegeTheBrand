@@ -55,6 +55,13 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
         fetchAllProducts();
     }, []);
 
+    const resolveImageUrl = (url) => {
+        if (!url) return '';
+        if (url.startsWith('http')) return url;
+        const separator = url.startsWith('/') ? '' : '/';
+        return `${API_BASE_URL}${separator}${encodeURI(url)}`;
+    };
+
     useEffect(() => {
         if (initialData) {
             setFormData({
@@ -71,7 +78,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
             if (initialData.variants) {
                 setVariants(initialData.variants.map(v => ({ 
                     ...v, 
-                    image_preview: v.image_url ? (v.image_url.startsWith('http') ? v.image_url : `${API_BASE_URL}${v.image_url}`) : '' 
+                    image_preview: v.image_url ? resolveImageUrl(v.image_url) : '' 
                 })));
             }
 
@@ -80,7 +87,8 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                     const parsed = JSON.parse(initialData.images);
                     const loadedImages = parsed.map(url => ({
                         file: null,
-                        preview: url.startsWith('http') ? url : `${API_BASE_URL}${url}`
+                        original_url: url,
+                        preview: resolveImageUrl(url)
                     }));
                     setImages(loadedImages);
                 } catch (e) { }
@@ -154,9 +162,14 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                 const url = await uploadImage(img.file);
                 if (url) finalImageUrls.push(url);
             } else {
-                // Keep existing url but strip localhost domain if needed
-                const url = img.preview.replace(API_BASE_URL, '').replace('http://localhost:8080', '');
-                finalImageUrls.push(url);
+                if (img.original_url) {
+                    finalImageUrls.push(img.original_url);
+                } else {
+                    // Keep existing url but strip localhost domain if needed and decode
+                    let url = img.preview.replace(API_BASE_URL, '').replace('http://localhost:8080', '');
+                    if (url.startsWith('//')) url = url.substring(1);
+                    finalImageUrls.push(decodeURI(url));
+                }
             }
         }
 

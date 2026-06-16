@@ -206,7 +206,7 @@ const CartItem = ({ item, updateQuantity, removeFromCart }) => {
     // Resolve URL to backend if relative
     let finalImage = null;
     if (extractedImage) {
-        finalImage = extractedImage.startsWith('http') ? extractedImage : `${API_BASE_URL}${extractedImage}`;
+        finalImage = extractedImage.startsWith('http') ? extractedImage : `${API_BASE_URL}${encodeURI(extractedImage)}`;
     }
 
     const [imgSrc, setImgSrc] = React.useState(finalImage);

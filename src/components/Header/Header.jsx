@@ -54,7 +54,7 @@ const Header = () => {
 
     const resolveImageUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+        return url.startsWith('http') ? url : `${API_BASE_URL}${encodeURI(url)}`;
     };
 
     useEffect(() => {

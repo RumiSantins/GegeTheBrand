@@ -34,7 +34,7 @@ const SharedWishlist = () => {
 
                         let parsedImages = [];
                         try { parsedImages = JSON.parse(product.images || '[]'); } catch (e) { }
-                        const imgs = parsedImages.map(url => url.startsWith('http') ? url : `${API_BASE_URL}${url}`);
+                        const imgs = parsedImages.map(url => url.startsWith('http') ? url : `${API_BASE_URL}${encodeURI(url)}`);
 
                         return {
                             ...product,

@@ -96,7 +96,7 @@ const ProductDetail = () => {
         parsedImages = JSON.parse(product.images || '[]');
     } catch (e) { }
 
-    const imgs = parsedImages.map(url => url.startsWith('http') ? url : `${API_BASE_URL}${url}`);
+    const imgs = parsedImages.map(url => url.startsWith('http') ? url : `${API_BASE_URL}${encodeURI(url)}`);
 
     // Extract unique sizes and colors from variants
     const variants = product.variants || [];
@@ -104,7 +104,7 @@ const ProductDetail = () => {
     // Image switching logic based on color
     const selectedVariantForColor = variants.find(v => v.color === selectedColor && v.image_url);
     const variantImgUrl = selectedVariantForColor ? 
-        (selectedVariantForColor.image_url.startsWith('http') ? selectedVariantForColor.image_url : `${API_BASE_URL}${selectedVariantForColor.image_url}`) 
+        (selectedVariantForColor.image_url.startsWith('http') ? selectedVariantForColor.image_url : `${API_BASE_URL}${encodeURI(selectedVariantForColor.image_url)}`) 
         : null;
 
     // We want to show the variant image first if it exists
@@ -212,10 +212,11 @@ const ProductDetail = () => {
 
                             return (
                                 <motion.div 
-                                    key={img} 
+                                    layout
+                                    key={`${img}-${idx}`} 
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
+                                    viewport={{ once: true, margin: "100px" }}
                                     transition={{ duration: 0.8, ease: "easeOut" }}
                                     className={`${span} bg-gray-100 dark:bg-gray-800 relative overflow-hidden group`}
                                 >

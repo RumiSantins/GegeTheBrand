@@ -44,14 +44,14 @@ const QuickShopModal = ({ isOpen, onClose, product }) => {
         parsedImages = JSON.parse(product.images || '[]');
     } catch (e) { }
 
-    const imgs = parsedImages.map(url => url.startsWith('http') ? url : `${API_BASE_URL}${url}`);
+    const imgs = parsedImages.map(url => url.startsWith('http') ? url : `${API_BASE_URL}${encodeURI(url)}`);
     
     const variants = product.variants || [];
     
     // Dynamic Main Image based on color
     const selectedVariantForColor = variants.find(v => v.color === selectedColor && v.image_url);
     const variantImgUrl = selectedVariantForColor ? 
-        (selectedVariantForColor.image_url.startsWith('http') ? selectedVariantForColor.image_url : `${API_BASE_URL}${selectedVariantForColor.image_url}`) 
+        (selectedVariantForColor.image_url.startsWith('http') ? selectedVariantForColor.image_url : `${API_BASE_URL}${encodeURI(selectedVariantForColor.image_url)}`) 
         : null;
 
     const mainImage = variantImgUrl || (imgs.length > 0 ? imgs[0] : '');

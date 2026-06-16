@@ -10,9 +10,9 @@ const ProductCard = ({ product, onQuickShop }) => {
         return typeof price === 'number' ? price.toFixed(2) : price;
     };
 
-    const resolveImageUrl = (url) => {
+    const getImageUrl = (url) => {
         if (!url) return '';
-        return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+        return url.startsWith('http') ? url : `${API_BASE_URL}${encodeURI(url)}`;
     };
 
     let parsedImages = [];
@@ -25,8 +25,8 @@ const ProductCard = ({ product, onQuickShop }) => {
         ? product.variants.filter((v, i, a) => a.findIndex(t => t.color === v.color) === i && v.color)
         : [];
 
-    const mainImage = parsedImages.length > 0 ? resolveImageUrl(parsedImages[0]) : '';
-    const hoverImage = parsedImages.length > 1 ? resolveImageUrl(parsedImages[1]) : mainImage;
+    const mainImage = parsedImages.length > 0 ? getImageUrl(parsedImages[0]) : '';
+    const hoverImage = parsedImages.length > 1 ? getImageUrl(parsedImages[1]) : mainImage;
 
     return (
         <div
