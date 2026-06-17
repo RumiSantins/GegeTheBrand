@@ -777,11 +777,19 @@ def update_order_status(
     
     # If transitioning to Completada from something else
     if new_status == "Completada" and old_status != "Completada":
+        # First check if there is enough stock for all items
+        for item in order.items:
+            if item.variant_id:
+                variant = session.get(ProductVariant, item.variant_id)
+                if variant and variant.stock < item.quantity:
+                    raise HTTPException(status_code=400, detail=f"Stock insuficiente para {item.product_name} (Talla: {item.size})")
+
+        # Then apply reduction
         for item in order.items:
             if item.variant_id:
                 variant = session.get(ProductVariant, item.variant_id)
                 if variant:
-                    variant.stock = max(0, variant.stock - item.quantity)
+                    variant.stock -= item.quantity
                     session.add(variant)
     
     # If transitioning from Completada to Cancelada or Devuelta
@@ -829,15 +837,13 @@ def update_order_details(
                     if variant:
                         variant.stock += item.quantity
                         session.add(variant)
-            # Must commit the reversal before we change the items
-            session.commit()
+            # Do not commit yet! Keep it atomic.
             
         # Step 2: Delete old items
         for item in order.items:
             session.delete(item)
-        session.commit()
         
-        # Step 3: Add new items
+        # Step 3: Add new items and validate stock
         new_total = 0
         for item_data in items_data:
             item_data.pop("id", None) # remove id if exists
@@ -845,12 +851,22 @@ def update_order_details(
             if not item_data.get("variant_id"):
                 item_data["variant_id"] = None
                 
-            qty = item_data.get("quantity", 1)
-            price = item_data.get("price_at_time", 0.0)
+            qty = int(item_data.get("quantity", 1))
+            price = float(item_data.get("price_at_time", 0.0))
             new_total += (qty * price)
             
             new_item = OrderItem(**item_data)
             session.add(new_item)
+
+            # Check and deduct stock if order is Completada
+            if order.status == "Completada" and new_item.variant_id:
+                variant = session.get(ProductVariant, new_item.variant_id)
+                if variant:
+                    if variant.stock < new_item.quantity:
+                        session.rollback()
+                        raise HTTPException(status_code=400, detail=f"Stock insuficiente para {new_item.product_name}")
+                    variant.stock -= new_item.quantity
+                    session.add(variant)
             
         order.total_amount = new_total
         if "amount_paid" in order_data:
@@ -865,16 +881,6 @@ def update_order_details(
         # Reload order with items
         stmt = select(Order).where(Order.id == order_id).options(selectinload(Order.items))
         order = session.exec(stmt).first()
-
-        # Step 4: Re-apply stock reduction if order is still Completada
-        if order.status == "Completada":
-            for item in order.items:
-                if item.variant_id:
-                    variant = session.get(ProductVariant, item.variant_id)
-                    if variant:
-                        variant.stock = max(0, variant.stock - item.quantity)
-                        session.add(variant)
-            session.commit()
             
     else:
         # If no items provided, just update the main order details

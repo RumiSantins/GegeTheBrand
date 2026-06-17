@@ -66,6 +66,23 @@ const OrdersTab = () => {
     }, []);
 
     const handleStatusChange = async (orderId, newStatus) => {
+        // Validation check for stock before marking as Completada
+        if (newStatus === 'Completada') {
+            const order = orders.find(o => o.id === orderId);
+            if (order && order.status !== 'Completada') {
+                for (const item of order.items) {
+                    const product = products.find(p => p.id === item.product_id);
+                    if (product) {
+                        const variant = product.variants.find(v => v.id === item.variant_id);
+                        if (variant && item.quantity > variant.stock) {
+                            alert(`No puedes completar el pedido. El producto "${product.name}" (Talla: ${variant.size}) no tiene stock suficiente. (Stock actual: ${variant.stock}, Solicitado: ${item.quantity})`);
+                            return; // Cancel status change
+                        }
+                    }
+                }
+            }
+        }
+
         if (!window.confirm(`¿Seguro que deseas cambiar el estado a ${newStatus}? Se actualizará el inventario correspondiente.`)) {
             return;
         }
@@ -208,6 +225,31 @@ const OrdersTab = () => {
         if (editFormData.items.length === 0) {
             alert("No puedes dejar el pedido sin productos.");
             return;
+        }
+
+        // Frontend validation: Check if items exceed available stock
+        for (const item of editFormData.items) {
+            const product = products.find(p => p.id === item.product_id);
+            if (product) {
+                const variant = product.variants.find(v => v.id === item.variant_id);
+                if (variant) {
+                    let availableStock = variant.stock;
+                    
+                    // If we are editing an order that is ALREADY "Completada",
+                    // the order already consumed the stock, so its original quantity is implicitly available.
+                    if (editingOrder && editingOrder.status === 'Completada') {
+                        const originalItem = editingOrder.items.find(i => i.variant_id === item.variant_id);
+                        if (originalItem) {
+                            availableStock += originalItem.quantity;
+                        }
+                    }
+
+                    if (item.quantity > availableStock) {
+                        alert(`No puedes guardar. El producto "${product.name}" (Talla: ${variant.size}) solo tiene ${availableStock} unidades disponibles.`);
+                        return; // Prevent saving
+                    }
+                }
+            }
         }
 
         const totalAmount = editFormData.items.reduce((total, item) => total + (item.price_at_time * item.quantity), 0);
