@@ -14,6 +14,9 @@ import WhatsAppBubble from './components/WhatsAppBubble/WhatsAppBubble';
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import OrderReceipt from './components/Admin/OrderReceipt';
+import EmployeeLogin from './components/Admin/EmployeeLogin';
+import EmployeeRegister from './components/Admin/EmployeeRegister';
+import EmployeeDashboard from './components/Admin/EmployeeDashboard';
 import Wishlist from './pages/Wishlist';
 import SharedWishlist from './pages/SharedWishlist';
 import Links from './pages/Links';
@@ -22,7 +25,7 @@ import Sale from './pages/Sale';
 
 const AppContent = () => {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/employee');
   const isLinksRoute = location.pathname === '/links';
   const isIsolatedRoute = isAdminRoute || isLinksRoute;
 
@@ -110,6 +113,10 @@ const AppContent = () => {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/receipt/:id" element={<OrderReceipt />} />
+          <Route path="/employee" element={<Navigate to="/employee/login" replace />} />
+          <Route path="/employee/login" element={<EmployeeLogin />} />
+          <Route path="/employee/register" element={<EmployeeRegister />} />
+          <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/wishlist/shared" element={<SharedWishlist />} />
           <Route path="/links" element={<Links />} />

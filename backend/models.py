@@ -1,6 +1,18 @@
 from typing import Optional, List
 from uuid import UUID, uuid4
 from sqlmodel import SQLModel, Field, Relationship
+from datetime import datetime
+
+class Employee(SQLModel, table=True):
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    dni: str = Field(index=True, unique=True)
+    name: str
+    first_name: str = Field(default="")
+    last_name: str = Field(default="")
+    username: Optional[str] = Field(default=None, unique=True, index=True)
+    password_hash: Optional[str] = None
+    is_registered: bool = Field(default=False)
+    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
 
 class Category(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
@@ -99,6 +111,8 @@ class Order(SQLModel, table=True):
     payment_method: str = Field(default="Efectivo")
     status: str = Field(default="Pendiente") # Pendiente, Completada, Cancelada, Devuelta
     created_at: str # Simple ISO string timestamp
+    managed_by: Optional[str] = Field(default=None)
+    managed_by_name: Optional[str] = Field(default=None)
     
     items: List["OrderItem"] = Relationship(back_populates="order", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
 

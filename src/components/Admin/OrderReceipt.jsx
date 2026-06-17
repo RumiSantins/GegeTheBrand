@@ -147,6 +147,12 @@ const OrderReceipt = () => {
                                 <span>S/ {Math.max(0, (order.amount_paid || 0) - order.total_amount).toFixed(2)}</span>
                             </div>
                         )}
+                        {order.managed_by && (
+                            <div className="flex justify-between mt-4 text-xs text-gray-500 font-bold border-t pt-2 border-dashed">
+                                <span>Atendido por:</span>
+                                <span>{order.managed_by_name || 'Admin'}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 

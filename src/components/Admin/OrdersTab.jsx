@@ -243,10 +243,11 @@ const OrdersTab = () => {
         } else {
             // Create new order
             try {
-                const res = await fetch(`${API_BASE_URL}/orders`, {
+                const res = await fetch(`${API_BASE_URL}/admin/orders`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
                     },
                     body: JSON.stringify(payload)
                 });
@@ -350,6 +351,11 @@ const OrdersTab = () => {
                                                 <option value="Eliminada">Eliminada</option>
                                             </select>
                                         </div>
+                                        {order.managed_by && (
+                                            <p className="text-[10px] text-gray-400 mt-2 text-right">
+                                                Gestionado por: {order.managed_by_name || 'Admin'} ({order.managed_by})
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>

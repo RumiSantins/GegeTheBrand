@@ -8,7 +8,8 @@ import ManifestoForm from './ManifestoForm';
 import SiteSettingsForm from './SiteSettingsForm';
 import EditorialSettingsForm from './EditorialSettingsForm';
 import OrdersTab from './OrdersTab';
-import { Plus, Edit2, Trash2, Tag, Box, Images, BookOpen, Settings, LayoutTemplate, ShoppingCart } from 'lucide-react';
+import EmployeeList from './EmployeeList';
+import { Plus, Edit2, Trash2, Tag, Box, Images, BookOpen, Settings, LayoutTemplate, ShoppingCart, Users } from 'lucide-react';
 import { API_BASE_URL } from '../../api/config';
 
 const AdminDashboard = () => {
@@ -230,6 +231,12 @@ const AdminDashboard = () => {
                             className={`font-bold uppercase tracking-wider text-xs sm:text-sm pb-2 border-b-2 flex items-center gap-2 transition whitespace-nowrap flex-shrink-0 min-w-max ${activeTab === 'orders' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
                         >
                             <ShoppingCart size={16} /> Pedidos
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('employees')}
+                            className={`font-bold uppercase tracking-wider text-xs sm:text-sm pb-2 border-b-2 flex items-center gap-2 transition whitespace-nowrap flex-shrink-0 min-w-max ${activeTab === 'employees' ? 'border-black text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                        >
+                            <Users size={16} /> Empleados
                         </button>
                     </div>
                 </div>
@@ -499,6 +506,10 @@ const AdminDashboard = () => {
 
                 {activeTab === 'orders' && (
                     <OrdersTab />
+                )}
+
+                {activeTab === 'employees' && (
+                    <EmployeeList />
                 )}
             </div>
         </div>

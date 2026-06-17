@@ -22,14 +22,35 @@ export const AuthProvider = ({ children }) => {
         return null;
     });
 
+    const [role, setRole] = useState(() => {
+        const savedToken = sessionStorage.getItem('admin_token');
+        if (savedToken) {
+            try {
+                const payload = JSON.parse(atob(savedToken.split('.')[1]));
+                if (payload.exp * 1000 < Date.now()) return null;
+                return payload.role || 'admin';
+            } catch (e) {
+                return null;
+            }
+        }
+        return null;
+    });
+
     const logout = useCallback(() => {
         sessionStorage.removeItem('admin_token');
         setToken(null);
+        setRole(null);
     }, []);
 
     const login = (newToken) => {
         sessionStorage.setItem('admin_token', newToken);
         setToken(newToken);
+        try {
+            const payload = JSON.parse(atob(newToken.split('.')[1]));
+            setRole(payload.role || 'admin');
+        } catch (e) {
+            setRole('admin');
+        }
     };
 
     const getAuthHeaders = () => {
@@ -94,7 +115,7 @@ export const AuthProvider = ({ children }) => {
     }, [token, resetInactivityTimer]);
 
     return (
-        <AuthContext.Provider value={{ token, login, logout, getAuthHeaders }}>
+        <AuthContext.Provider value={{ token, role, login, logout, getAuthHeaders }}>
             {children}
         </AuthContext.Provider>
     );

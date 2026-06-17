@@ -14,7 +14,7 @@ from sqlmodel import SQLModel, create_engine, Session, select, text
 from sqlalchemy.orm import selectinload
 from passlib.context import CryptContext
 from dotenv import load_dotenv
-from models import Product, ProductVariant, Category, HeroSlide, Manifesto, SiteSettings, EditorialSettings, Order, OrderItem
+from models import Product, ProductVariant, Category, HeroSlide, Manifesto, SiteSettings, EditorialSettings, Order, OrderItem, Employee
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -105,6 +105,30 @@ def create_db_and_tables():
 
         try:
             session.exec(text("ALTER TABLE product ADD COLUMN offer_min_qty INTEGER DEFAULT 1"))
+            session.commit()
+        except:
+            session.rollback()
+
+        try:
+            session.exec(text("ALTER TABLE `order` ADD COLUMN managed_by VARCHAR"))
+            session.commit()
+        except:
+            session.rollback()
+
+        try:
+            session.exec(text("ALTER TABLE `order` ADD COLUMN managed_by_name VARCHAR"))
+            session.commit()
+        except:
+            session.rollback()
+
+        try:
+            session.exec(text("ALTER TABLE employee ADD COLUMN first_name VARCHAR DEFAULT ''"))
+            session.commit()
+        except:
+            session.rollback()
+
+        try:
+            session.exec(text("ALTER TABLE employee ADD COLUMN last_name VARCHAR DEFAULT ''"))
             session.commit()
         except:
             session.rollback()
@@ -205,11 +229,25 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 @app.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
+def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
     if form_data.username == ADMIN_USERNAME_ENV and verify_password(form_data.password, ADMIN_PASSWORD_HASH_ENV):
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
-            data={"sub": form_data.username}, expires_delta=access_token_expires
+            data={"sub": form_data.username, "role": "admin", "name": "Dueña"}, expires_delta=access_token_expires
+        )
+        return {"access_token": access_token, "token_type": "bearer"}
+        
+    stmt = select(Employee).where(Employee.username == form_data.username)
+    employee = session.exec(stmt).first()
+    
+    if employee and employee.password_hash and pwd_context.verify(form_data.password, employee.password_hash):
+        fn = employee.first_name.strip().split()[0] if employee.first_name else ""
+        ln = employee.last_name.strip().split()[0] if employee.last_name else ""
+        display_name = f"{fn} {ln}".strip() or employee.name
+        
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": form_data.username, "role": "employee", "name": display_name}, expires_delta=access_token_expires
         )
         return {"access_token": access_token, "token_type": "bearer"}
     
@@ -223,13 +261,35 @@ def get_current_admin(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
-        if username is None or username != ADMIN_USERNAME_ENV:
+        role: str = payload.get("role", "admin")
+        name: str = payload.get("name", "Dueña")
+        if username is None or role != "admin":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Credenciales inválidas o expiradas",
+                detail="Credenciales inválidas o acceso denegado",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        return {"username": username, "role": "admin"}
+        return {"username": username, "role": "admin", "name": name}
+    except (jwt.PyJWTError, Exception):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        role: str = payload.get("role", "admin")
+        name: str = payload.get("name", "Dueña")
+        if username is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Credenciales inválidas",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return {"username": username, "role": role, "name": name}
     except (jwt.PyJWTError, Exception):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -610,10 +670,46 @@ def create_order(
     
     return {"order_number": order.order_number, "id": str(order.id), "amount_paid": order.amount_paid, "payment_method": order.payment_method}
 
+@app.post("/admin/orders")
+def admin_create_order(
+    order_data: dict, 
+    session: Session = Depends(get_session),
+    user: dict = Depends(get_current_user)
+):
+    items_data = order_data.pop("items", [])
+    
+    # Generate short order number
+    now = datetime.now()
+    order_number = f"ORD-{now.strftime('%Y%m%d')}-{str(uuid.uuid4())[:6].upper()}"
+    order_data["order_number"] = order_number
+    order_data["created_at"] = now.isoformat()
+    order_data["status"] = "Pendiente"
+    order_data["managed_by"] = user.get("username")
+    order_data["managed_by_name"] = user.get("name")
+    
+    order = Order(**order_data)
+    session.add(order)
+    session.commit()
+    session.refresh(order)
+    
+    for item in items_data:
+        item["order_id"] = order.id
+        if not item.get("variant_id"):
+            item["variant_id"] = None
+        if not item.get("is_offer"):
+            item["is_offer"] = False
+        order_item = OrderItem(**item)
+        session.add(order_item)
+        
+    session.commit()
+    session.refresh(order)
+    
+    return {"order_number": order.order_number, "id": str(order.id), "amount_paid": order.amount_paid, "payment_method": order.payment_method, "managed_by": order.managed_by}
+
 @app.get("/admin/orders")
 def get_orders(
     session: Session = Depends(get_session),
-    admin: dict = Depends(get_current_admin)
+    user: dict = Depends(get_current_user)
 ):
     stmt = select(Order).options(selectinload(Order.items)).order_by(Order.created_at.desc())
     orders = session.exec(stmt).all()
@@ -638,7 +734,7 @@ def get_orders(
 def get_order(
     order_id: str,
     session: Session = Depends(get_session),
-    admin: dict = Depends(get_current_admin)
+    user: dict = Depends(get_current_user)
 ):
     stmt = select(Order).where(Order.id == order_id).options(selectinload(Order.items))
     order = session.exec(stmt).first()
@@ -665,7 +761,7 @@ def update_order_status(
     order_id: str,
     status_data: dict,
     session: Session = Depends(get_session),
-    admin: dict = Depends(get_current_admin)
+    user: dict = Depends(get_current_user)
 ):
     stmt = select(Order).where(Order.id == order_id).options(selectinload(Order.items))
     order = session.exec(stmt).first()
@@ -698,6 +794,8 @@ def update_order_status(
                     session.add(variant)
                     
     order.status = new_status
+    order.managed_by = user.get("username")
+    order.managed_by_name = user.get("name")
     session.add(order)
     session.commit()
     
@@ -708,7 +806,7 @@ def update_order_details(
     order_id: str,
     order_data: dict,
     session: Session = Depends(get_session),
-    admin: dict = Depends(get_current_admin)
+    user: dict = Depends(get_current_user)
 ):
     stmt = select(Order).where(Order.id == order_id).options(selectinload(Order.items))
     order = session.exec(stmt).first()
@@ -759,6 +857,8 @@ def update_order_details(
             order.amount_paid = float(order_data["amount_paid"])
         if "payment_method" in order_data:
             order.payment_method = order_data["payment_method"]
+        order.managed_by = user.get("username")
+        order.managed_by_name = user.get("name")
         session.add(order)
         session.commit()
         
@@ -800,3 +900,84 @@ def update_order_details(
         res["items"].append(i_dict)
         
     return res
+
+# --- 7. EMPLOYEE ENDPOINTS ---
+
+@app.get("/admin/employees")
+def get_employees(
+    session: Session = Depends(get_session),
+    admin: dict = Depends(get_current_admin)
+):
+    stmt = select(Employee).order_by(Employee.created_at.desc())
+    employees = session.exec(stmt).all()
+    return employees
+
+@app.post("/admin/employees")
+def create_employee_invitation(
+    data: dict,
+    session: Session = Depends(get_session),
+    admin: dict = Depends(get_current_admin)
+):
+    dni = data.get("dni")
+    first_name = data.get("first_name", "")
+    last_name = data.get("last_name", "")
+    name = f"{first_name} {last_name}".strip()
+    
+    if not dni or not first_name or not last_name:
+        raise HTTPException(status_code=400, detail="Faltan datos")
+        
+    existing = session.exec(select(Employee).where(Employee.dni == dni)).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="El DNI ya está registrado")
+        
+    emp = Employee(dni=dni, name=name, first_name=first_name, last_name=last_name)
+    session.add(emp)
+    session.commit()
+    session.refresh(emp)
+    return emp
+
+@app.delete("/admin/employees/{employee_id}")
+def delete_employee(
+    employee_id: str,
+    session: Session = Depends(get_session),
+    admin: dict = Depends(get_current_admin)
+):
+    emp = session.get(Employee, employee_id)
+    if not emp:
+        raise HTTPException(status_code=404, detail="Empleado no encontrado")
+        
+    session.delete(emp)
+    session.commit()
+    return {"ok": True}
+
+@app.post("/employee/register")
+def register_employee(
+    data: dict,
+    session: Session = Depends(get_session)
+):
+    dni = data.get("dni")
+    username = data.get("username")
+    password = data.get("password")
+    
+    if not dni or not username or not password:
+        raise HTTPException(status_code=400, detail="Faltan datos")
+        
+    emp = session.exec(select(Employee).where(Employee.dni == dni)).first()
+    if not emp:
+        raise HTTPException(status_code=404, detail="DNI no autorizado")
+        
+    if emp.is_registered:
+        raise HTTPException(status_code=400, detail="Este DNI ya completó su registro")
+        
+    existing_user = session.exec(select(Employee).where(Employee.username == username)).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso")
+        
+    emp.username = username
+    emp.password_hash = pwd_context.hash(password)
+    emp.is_registered = True
+    session.add(emp)
+    session.commit()
+    session.refresh(emp)
+    
+    return {"ok": True}
