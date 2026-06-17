@@ -455,11 +455,11 @@ const OrdersTab = () => {
                                             onChange={(e) => setEditFormData({ ...editFormData, payment_method: e.target.value })}
                                             className="w-full border rounded p-2 text-sm focus:outline-none focus:ring-1 focus:ring-black"
                                         >
-                                            <option value="Efectivo">Efectivo 💵</option>
-                                            <option value="Transferencia">Transferencia 🏦</option>
-                                            <option value="Yape">Yape 📱</option>
-                                            <option value="Plin">Plin 📱</option>
-                                            <option value="Tarjeta">Tarjeta 💳</option>
+                                            <option value="Efectivo">Efectivo</option>
+                                            <option value="Transferencia">Transferencia</option>
+                                            <option value="Yape">Yape</option>
+                                            <option value="Plin">Plin</option>
+                                            <option value="Tarjeta">Tarjeta</option>
                                         </select>
                                     </div>
                                     <div>
