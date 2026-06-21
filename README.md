@@ -56,7 +56,7 @@ La forma más sencilla de ejecutar todo el ecosistema (Frontend + Backend) es ut
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/Yhernan10/gegethebrand.git
    cd gegethebrand
    ```
 

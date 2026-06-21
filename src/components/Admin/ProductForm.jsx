@@ -368,7 +368,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                                     )}
                                     <input 
                                         type="file" 
-                                        accept="image/*, .heic, .heif, .webp" 
+                                        accept="image/*,.heic,.heif,.webp" 
                                         onChange={(e) => handleVariantImageChange(i, e.target.files[0])} 
                                         className="absolute inset-0 opacity-0 cursor-pointer" 
                                     />
@@ -408,7 +408,7 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                     </div>
 
                     <div className="border border-dashed p-4 flex flex-col items-center justify-center bg-gray-50 h-32 relative hover:bg-gray-100 transition cursor-pointer">
-                        <input type="file" multiple accept="image/*, .heic, .heif, .webp" onChange={handleAddImage} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                        <input type="file" multiple accept="image/*,.heic,.heif,.webp" onChange={handleAddImage} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                         <div className="flex flex-col items-center z-10 pointer-events-none text-black">
                             <Upload size={24} className="mb-2" />
                             <span className="text-sm font-semibold">Agregar imágenes</span>
