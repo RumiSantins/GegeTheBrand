@@ -133,6 +133,12 @@ def create_db_and_tables():
         except:
             session.rollback()
 
+        try:
+            session.exec(text("ALTER TABLE product ADD COLUMN size_guide_url VARCHAR"))
+            session.commit()
+        except:
+            session.rollback()
+
 def get_session():
     with Session(engine) as session:
         yield session

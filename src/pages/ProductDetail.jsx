@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { motion } from 'framer-motion';
-import { ChevronRight, Heart, Share2, Ruler } from 'lucide-react';
+import { ChevronRight, Heart, Share2, Ruler, X } from 'lucide-react';
 import { API_BASE_URL } from '../api/config';
 
 const ProductDetail = () => {
@@ -17,6 +17,7 @@ const ProductDetail = () => {
     const [product, setProduct] = useState(null);
     const [relatedProduct, setRelatedProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showSizeGuide, setShowSizeGuide] = useState(false);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -75,6 +76,21 @@ const ProductDetail = () => {
             window.scrollTo(0, 0);
         }
     }, [id]);
+
+    useEffect(() => {
+        if (showSizeGuide) {
+            document.body.style.overflow = 'hidden';
+            if (window.lenis) window.lenis.stop();
+        } else {
+            document.body.style.overflow = 'unset';
+            if (window.lenis) window.lenis.start();
+        }
+        
+        return () => {
+            document.body.style.overflow = 'unset';
+            if (window.lenis) window.lenis.start();
+        };
+    }, [showSizeGuide]);
 
     if (loading) {
         return <div className="min-h-screen pt-32 pb-24 px-6 text-center">Cargando...</div>;
@@ -367,9 +383,14 @@ const ProductDetail = () => {
                                         <h3 className="text-xs font-bold uppercase tracking-widest">
                                             Talla: {selectedSize || 'Seleccionar'}
                                         </h3>
-                                        <button className="text-[10px] text-gray-500 uppercase tracking-widest flex items-center gap-1 hover:text-black">
-                                            <Ruler size={12} /> Guía de tallas
-                                        </button>
+                                        {product.size_guide_url && (
+                                            <button 
+                                                onClick={() => setShowSizeGuide(true)}
+                                                className="text-[10px] text-gray-500 uppercase tracking-widest flex items-center gap-1 hover:text-black dark:hover:text-white"
+                                            >
+                                                <Ruler size={12} /> Guía de tallas
+                                            </button>
+                                        )}
                                     </div>
                                     <div className="grid grid-cols-4 gap-2">
                                         {sizesArray.map(size => {
@@ -435,6 +456,35 @@ const ProductDetail = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Size Guide Modal */}
+            {showSizeGuide && product.size_guide_url && (
+                <div 
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                    onClick={() => setShowSizeGuide(false)}
+                >
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-white dark:bg-[#07020f] dark:border dark:border-white/10 rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl"
+                    >
+                        <button 
+                            onClick={() => setShowSizeGuide(false)}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-black dark:hover:text-white"
+                        >
+                            <X size={24} />
+                        </button>
+                        <h2 className="text-xl font-bold uppercase mb-6 text-center border-b pb-4">Guía de Tallas</h2>
+                        <img 
+                            src={product.size_guide_url.startsWith('http') ? product.size_guide_url : `${API_BASE_URL}${product.size_guide_url}`} 
+                            alt="Guía de tallas" 
+                            className="w-full h-auto object-contain"
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

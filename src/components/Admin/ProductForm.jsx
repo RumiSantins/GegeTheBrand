@@ -23,6 +23,9 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
 
     // Images array
     const [images, setImages] = useState([]); // [{file: File|null, preview: 'url'}]
+    
+    // Size guide image
+    const [sizeGuideImage, setSizeGuideImage] = useState({ file: null, preview: '', original_url: '' });
 
     const [categories, setCategories] = useState([]);
 
@@ -93,6 +96,30 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                     setImages(loadedImages);
                 } catch (e) { }
             }
+
+            if (initialData.size_guide_url) {
+                setSizeGuideImage({
+                    file: null,
+                    original_url: initialData.size_guide_url,
+                    preview: resolveImageUrl(initialData.size_guide_url)
+                });
+            } else {
+                setSizeGuideImage({ file: null, preview: '', original_url: '' });
+            }
+        } else {
+            setFormData({
+                name: '',
+                price: '',
+                description: '',
+                category: 'General',
+                related_product_id: '',
+                is_offer: false,
+                offer_price: '',
+                offer_min_qty: 1,
+            });
+            setVariants([]);
+            setImages([]);
+            setSizeGuideImage({ file: null, preview: '', original_url: '' });
         }
     }, [initialData]);
 
@@ -109,6 +136,21 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
         const newImages = [...images];
         newImages.splice(index, 1);
         setImages(newImages);
+    };
+
+    const handleSizeGuideChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSizeGuideImage({
+                file: file,
+                preview: URL.createObjectURL(file),
+                original_url: ''
+            });
+        }
+    };
+
+    const handleRemoveSizeGuide = () => {
+        setSizeGuideImage({ file: null, preview: '', original_url: '' });
     };
 
     const handleAddVariant = () => {
@@ -217,6 +259,18 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
             images: finalImageUrls,
             variants: finalVariants
         };
+
+        // 3. Upload size guide
+        if (sizeGuideImage.file) {
+            const uploadedUrl = await uploadImage(sizeGuideImage.file);
+            if (uploadedUrl) {
+                payload.size_guide_url = uploadedUrl;
+            }
+        } else if (sizeGuideImage.original_url) {
+            payload.size_guide_url = sizeGuideImage.original_url;
+        } else {
+            payload.size_guide_url = null;
+        }
 
         const method = initialData ? 'PUT' : 'POST';
         const url = initialData
@@ -415,6 +469,26 @@ const ProductForm = ({ onSaved, onCancel, initialData = null }) => {
                         </div>
                     </div>
                     {images.length === 0 && <p className="text-xs text-red-500 mt-1">Sube al menos 1 imagen principal.</p>}
+                </div>
+
+                <div>
+                    <label className="block text-sm font-bold uppercase mb-2">Guía de Tallas (Opcional)</label>
+                    {sizeGuideImage.preview ? (
+                        <div className="border relative group h-32 w-32 bg-gray-50 flex justify-center items-center">
+                            <img src={sizeGuideImage.preview} alt="size guide preview" className="h-full object-contain" />
+                            <button type="button" onClick={handleRemoveSizeGuide} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition shadow">
+                                <X size={12} />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="border border-dashed p-4 flex flex-col items-center justify-center bg-gray-50 h-32 w-32 relative hover:bg-gray-100 transition cursor-pointer">
+                            <input type="file" accept="image/*,.heic,.heif,.webp" onChange={handleSizeGuideChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                            <div className="flex flex-col items-center z-10 pointer-events-none text-black text-center">
+                                <Upload size={20} className="mb-2" />
+                                <span className="text-[10px] font-semibold uppercase">Agregar imagen</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

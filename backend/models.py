@@ -101,6 +101,8 @@ class Product(SQLModel, table=True):
     is_offer: bool = Field(default=False)
     offer_price: Optional[float] = None
     offer_min_qty: int = Field(default=1)
+    
+    size_guide_url: Optional[str] = None
 
 class Order(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
